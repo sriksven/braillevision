@@ -1,3 +1,12 @@
+---
+title: BrailleVision
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+license: mit
+---
+
 # BrailleVision
 
 [![CI](https://github.com/sriksven/braillevision/actions/workflows/ci.yml/badge.svg)](https://github.com/sriksven/braillevision/actions/workflows/ci.yml)
