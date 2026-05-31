@@ -210,7 +210,15 @@ Report results as character error rate or accuracy:
 accuracy = 1 - CER
 ```
 
-README benchmark table template:
+## Real-Image Benchmark Results
+
+**Status:** Real-image detection tuning in progress.
+
+The pipeline has been validated on synthetic Braille. Testing on 10 real Wikimedia photos (80 augmented variants) shows that dot detection requires parameter tuning for real lighting, texture, and perspective conditions. Current mean character error rate: **119.6%** (indicating systematic detection issues rather than recognition errors).
+
+**Next step:** Adjust `src/braillevision/config.py` parameters for real-image blob detection thresholds, circularity, and area bounds based on actual camera angles and lighting environments.
+
+Placeholder for final benchmark table:
 
 ```markdown
 | Condition    | Accuracy |
@@ -221,8 +229,6 @@ README benchmark table template:
 | Slight blur  | TBD      |
 | 5 deg rotate | TBD      |
 ```
-
-Use real numbers after collecting and annotating real images.
 
 ## Documentation
 
