@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BrailleVision</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="feed-panel">
+        <div class="brand">
+          <span class="mark">BV</span>
+          <div>
+            <h1>BrailleVision</h1>
+            <p>Live Braille image recognition</p>
+          </div>
+        </div>
+        <img id="feed" class="feed" src="{{ url_for('video_feed') }}" alt="Annotated Braille feed">
+      </section>
+
+      <aside class="side-panel">
+        <section class="readout">
+          <div class="label">Detected text</div>
+          <div id="detectedText" class="detected">Waiting for Braille...</div>
+          <div class="actions">
+            <button id="speakBtn" type="button">Speak</button>
+            <button id="copyBtn" type="button">Copy</button>
+          </div>
+        </section>
+
+        <section class="stats">
+          <div><span id="dotCount">0</span><small>dots</small></div>
+          <div><span id="cellCount">0</span><small>cells</small></div>
+          <div><span id="spacing">0</span><small>spacing</small></div>
+          <div><span id="confidence">0%</span><small>confidence</small></div>
+        </section>
+
+        <label class="upload" for="imageInput">
+          <input id="imageInput" type="file" accept="image/*">
+          <strong>Upload Braille Image</strong>
+          <span>Click or drop an image here</span>
+        </label>
+
+        <section>
+          <div class="label">History</div>
+          <ol id="history" class="history"></ol>
+        </section>
+      </aside>
+    </main>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+  </body>
+</html>
+

@@ -1,0 +1,1 @@
+"""BrailleVision Flask application package."""
