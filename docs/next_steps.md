@@ -6,7 +6,11 @@ For the full checklist, see [TODO](todo.md).
 
 ## 1. Docker Verification
 
-Done when `docker compose up --build` starts and `http://localhost:7860/health` returns OK.
+Status: done locally.
+
+`docker compose up --build` starts, `http://localhost:7860/health` returns OK, and sample upload through `/upload` returned `hello`.
+
+Keep this command set for future verification:
 
 ```bash
 docker compose up --build
@@ -14,9 +18,9 @@ curl http://localhost:7860/health
 docker compose down
 ```
 
-If Docker reports that it cannot connect to the daemon, start Docker Desktop and retry.
-
 ## 2. Real Braille Images
+
+Status: partially done. Ten public real Braille photos are in ignored `data/raw/`, and the current pipeline has been smoke-tested against them.
 
 Done when uploading real Braille photos through the UI produces correct or near-correct text.
 
@@ -53,6 +57,8 @@ Example file in `data/annotations/`:
 
 ## 4. Augmentation
 
+Status: done for the current 10-image local set. `data/processed/` has 80 generated variants.
+
 Done when `data/processed/` contains variants for the real-image set.
 
 ```bash
@@ -62,6 +68,8 @@ python scripts/augment_data.py --input data/raw/ --output data/processed/
 The script creates eight variants per image.
 
 ## 5. Benchmark
+
+Status: blocked until annotation JSON exists.
 
 Done when README has a benchmark table with real numbers.
 
@@ -77,12 +85,9 @@ accuracy = 1 - CER
 
 ## 6. Public Repo and CI
 
-Done when the GitHub repo is public and Actions is green.
+Status: done.
 
-- Push to GitHub.
-- Confirm `.github/workflows/ci.yml` runs.
-- Fix any CI-only failures.
-- Add the CI badge to `README.md` after the first successful run.
+GitHub repo is public at `https://github.com/sriksven/braillevision`, Actions is green, and the CI badge is in `README.md`.
 
 ## 7. Public Demo
 

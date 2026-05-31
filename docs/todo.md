@@ -40,89 +40,60 @@ Status: done.
 
 ## 4. GitHub Repository
 
-Status: not done.
+Status: done.
 
 Done when the public GitHub repo has a green CI badge.
 
 Tasks:
 
-- Create public GitHub repo named `braillevision`
-- Add remote and push:
+- Done: public GitHub repo exists at `https://github.com/sriksven/braillevision`
+- Done: `origin` remote is configured
+- Done: `main` branch pushed
+- Done: GitHub Actions started
+- Done: CI completed successfully
+- Done: CI badge added to `README.md`
+
+Commands used:
 
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/braillevision
-git branch -M main
 git push -u origin main
-```
-
-- Confirm GitHub Actions starts under the Actions tab
-- Wait for CI to pass
-- Fix anything CI flags
-- Add CI badge to `README.md`
-- Commit and push README update:
-
-```bash
-git add README.md
-git commit -m "docs: add CI badge"
-git push
 ```
 
 ## 5. Docker
 
-Status: blocked until Docker Desktop/daemon is running.
+Status: done.
 
 Done when the app runs cleanly inside Docker and health check passes.
 
 Tasks:
 
-- Open Docker Desktop and wait for it to fully start
-- Verify daemon:
+- Done: Docker Desktop daemon started
+- Done: image built with `docker compose up --build`
+- Done: UI returned HTTP 200 at `http://localhost:7860`
+- Done: `/health` returned `{"status":"ok","version":"1.0"}`
+- Done: uploaded `data/samples/hello.png` through `/upload`; pipeline returned `hello`
+- Done: container stopped with `docker compose down`
+- Done: `.dockerignore` added to keep `.venv`, raw data, processed data, and local artifacts out of Docker context
+
+Commands used:
 
 ```bash
 docker info
-```
-
-- Build and run:
-
-```bash
 docker compose up --build
-```
-
-- Open `http://localhost:7860`
-- Check health:
-
-```bash
 curl http://localhost:7860/health
-```
-
-Expected:
-
-```json
-{"status": "ok", "version": "1.0"}
-```
-
-- Upload a test image through the UI inside Docker
-- Stop container:
-
-```bash
 docker compose down
 ```
 
 ## 6. Real Braille Images
 
-Status: not done. This is the highest-priority remaining product work.
+Status: partially done. This is still the highest-priority remaining product work.
 
 Done when uploading a real Braille photo via the UI produces correct or near-correct English text.
 
 ### 6a. Collect Images
 
-- Search for real physical Braille images:
-  - `braille paper embossed close up camera`
-  - `braille book page`
-  - `braille label`
-  - `braille sign`
-- Download 20 to 30 real photos
-- Save them to `data/raw/`
+- Done: downloaded 10 real public Braille photos from Wikimedia Commons into ignored `data/raw/`
+- Not done: collect the full 20 to 30 image set
 
 ### 6b. Test In The App
 
@@ -137,7 +108,11 @@ Open:
 http://127.0.0.1:7860
 ```
 
-Upload each image and record:
+Done: current pipeline was run over all 10 downloaded real images.
+
+Baseline result: dot detection fires on most images, but decoded text is mostly wrong or incomplete. This confirms real-image tuning is still required.
+
+Continue recording:
 
 - expected text
 - actual pipeline output
@@ -179,7 +154,7 @@ Example:
 
 ## 7. Augmentation
 
-Status: not done for real images.
+Status: done for the current 10 real-image set.
 
 Done when `data/processed/` has at least 80 images from 10 real images and eight variants each.
 
@@ -191,9 +166,14 @@ python scripts/augment_data.py --input data/raw/ --output data/processed/
 
 Then spot-check outputs. They should look like realistic degraded images, not broken samples.
 
+Current local result:
+
+- 10 real images in `data/raw/`
+- 80 generated image variants in `data/processed/`
+
 ## 8. Benchmark
 
-Status: not done.
+Status: blocked on real annotation JSON.
 
 Done when README has a benchmark table with real numbers.
 
@@ -201,6 +181,12 @@ Run:
 
 ```bash
 python scripts/benchmark.py --testset data/processed/
+```
+
+Current result:
+
+```text
+No annotated images found.
 ```
 
 Record accuracy by condition:
@@ -380,4 +366,3 @@ Avoid claiming 90%+ accuracy until real-image benchmarks prove it.
 | 5 | Record demo video | Required for submissions |
 | 6 | Benchmark and README GIF | Improves judge confidence |
 | 7 | Submit Devpost entries | Final deliverable |
-

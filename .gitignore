@@ -13,6 +13,7 @@ data/annotations/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/annotations/.gitkeep
+data/samples/upload_*
 *.mp4
 *.mov
 PROJECT_STATUS.md

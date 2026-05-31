@@ -5,11 +5,16 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from PIL import Image, ImageEnhance, ImageFilter
+from PIL import Image, ImageEnhance, ImageFilter, UnidentifiedImageError
+
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".tif", ".tiff", ".webp"}
 
 
 def augment_image(path: Path, out_dir: Path) -> None:
-    img = Image.open(path).convert("RGB")
+    try:
+        img = Image.open(path).convert("RGB")
+    except UnidentifiedImageError:
+        return
     variants = {
         "normal": img,
         "dim": ImageEnhance.Brightness(img).enhance(0.65),
@@ -37,6 +42,8 @@ def main() -> None:
     )
     args = parser.parse_args()
     for image_path in sorted(args.src.glob("*.*")):
+        if image_path.suffix.lower() not in IMAGE_EXTENSIONS:
+            continue
         augment_image(image_path, args.out)
 
 

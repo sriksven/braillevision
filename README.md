@@ -1,5 +1,7 @@
 # BrailleVision
 
+[![CI](https://github.com/sriksven/braillevision/actions/workflows/ci.yml/badge.svg)](https://github.com/sriksven/braillevision/actions/workflows/ci.yml)
+
 BrailleVision is a computer-vision demo that reads camera or uploaded images of Braille and returns English text with an annotated detection overlay. The current implementation is validated on synthetic Braille images and is ready for the next phase: real embossed Braille image collection, tuning, and benchmarking.
 
 ## Status
@@ -8,7 +10,9 @@ BrailleVision is a computer-vision demo that reads camera or uploaded images of 
 - Coverage from the latest local run: `72%`
 - Formatting and linting are clean with Black, isort, and flake8
 - Flask demo runs locally at `http://127.0.0.1:7860`
-- Docker files are present, but local Docker verification still needs Docker Desktop/daemon running
+- Docker build, health check, UI load, and sample upload were verified locally
+- 10 public real Braille photos have been downloaded locally for smoke testing
+- 80 augmented real-image variants were generated locally
 
 ## Features
 
@@ -171,6 +175,8 @@ python scripts/benchmark.py --testset data/processed/
 ```
 
 The benchmark script looks for annotation JSON files next to each processed image and in `data/annotations/`.
+
+Current status: the benchmark command runs, but accuracy is blocked until real-image annotation JSON exists.
 
 Report results as character error rate or accuracy:
 

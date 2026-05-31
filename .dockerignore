@@ -1,0 +1,16 @@
+.git
+.venv
+__pycache__
+*.py[cod]
+*.egg-info
+.pytest_cache
+.coverage
+htmlcov
+data/raw/*
+data/processed/*
+data/annotations/*
+PROJECT_STATUS.md
+*.mp4
+*.mov
+docs/demo.gif
+
