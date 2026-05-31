@@ -11,6 +11,8 @@ license: mit
 
 [![CI](https://github.com/sriksven/braillevision/actions/workflows/ci.yml/badge.svg)](https://github.com/sriksven/braillevision/actions/workflows/ci.yml)
 
+**Live demo:** [https://sriksven-braillevision.hf.space](https://sriksven-braillevision.hf.space)
+
 BrailleVision is a computer-vision demo that reads camera or uploaded images of Braille and returns English text with an annotated detection overlay. The current implementation is validated on synthetic Braille images and is ready for the next phase: real embossed Braille image collection, tuning, and benchmarking.
 
 ## Status
@@ -20,6 +22,7 @@ BrailleVision is a computer-vision demo that reads camera or uploaded images of 
 - Formatting and linting are clean with Black, isort, and flake8
 - Flask demo runs locally at `http://127.0.0.1:7860`
 - Docker build, health check, UI load, and sample upload were verified locally
+- Hugging Face Spaces Docker deployment is live and verified
 - 10 public real Braille photos have been downloaded locally for smoke testing
 - 80 augmented real-image variants were generated locally
 
@@ -94,6 +97,20 @@ Expected response:
 ```json
 {"status": "ok", "version": "1.0"}
 ```
+
+## Live Demo
+
+The public Docker deployment is available on Hugging Face Spaces:
+
+```text
+https://sriksven-braillevision.hf.space
+```
+
+Deployment verification on May 31, 2026:
+
+- `/health` returned `{"status":"ok","version":"1.0"}`
+- `/` returned HTTP 200
+- `/upload` with `data/samples/hello.png` returned `hello`
 
 ## Project Structure
 

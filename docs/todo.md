@@ -213,33 +213,36 @@ Do not claim high accuracy without a number.
 
 ## 9. Hugging Face Spaces Deployment
 
-Status: not done.
+Status: done.
 
 Done when a public URL exists that anyone can open and use.
 
 Tasks:
 
-- Create Hugging Face account if needed
-- Create new Space:
+- Done: Hugging Face account/token verified for deployment
+- Done: created public Space:
   - Space name: `braillevision`
   - SDK: Docker
   - Hardware: CPU Basic
   - Visibility: Public
-- Add remote:
+- Done: added remote:
 
 ```bash
-git remote add hf https://huggingface.co/spaces/YOUR_HF_USERNAME/braillevision
+git remote add hf https://huggingface.co/spaces/sriksven/braillevision
 ```
 
-- Push:
+- Done: pushed `main` to Hugging Face Spaces
+- Done: Space built and reached `RUNNING`
+- Done: live URL works:
 
-```bash
-git push hf main
+```text
+https://sriksven-braillevision.hf.space
 ```
 
-- Watch build logs
-- Confirm live URL works
-- Upload an image and test text output/TTS
+- Done: `/health` returned `{"status":"ok","version":"1.0"}`
+- Done: `/` returned HTTP 200
+- Done: uploaded `data/samples/hello.png`; `/upload` returned `hello`
+- Not done: browser TTS still needs manual browser verification on the live Space
 
 ## 10. README Completion
 
@@ -249,12 +252,7 @@ Done when README has live URL, demo GIF, quick start, Docker instructions, and r
 
 Tasks:
 
-- Add live demo link near top:
-
-```markdown
-**[Live Demo](https://YOUR_HF_USERNAME-braillevision.hf.space)**
-```
-
+- Done: live demo link added near top
 - Record 30 to 60 second app demo
 - Convert to GIF:
 
@@ -350,7 +348,7 @@ Avoid claiming 90%+ accuracy until real-image benchmarks prove it.
 | Issue | Priority | Action |
 |-------|----------|--------|
 | Tests use synthetic images only | High | Real-image tuning |
-| Docker not tested locally | High | Start Docker Desktop |
+| Real-image benchmark has no annotations | High | Add annotation JSON |
 | Grade 2 contraction support partial | Medium | Improve if time allows |
 | Upload validation minimal | Medium | Add file size and type checks |
 | UI keyboard navigation incomplete | Low | Polish after core demo |
@@ -359,10 +357,8 @@ Avoid claiming 90%+ accuracy until real-image benchmarks prove it.
 
 | # | Step | Why |
 |---|------|-----|
-| 1 | Push to GitHub | Enables public repo and CI |
-| 2 | Verify Docker | Required for Hugging Face Spaces |
-| 3 | Real images and tuning | Proves the product works |
-| 4 | Deploy to Hugging Face Spaces | Provides public demo URL |
-| 5 | Record demo video | Required for submissions |
-| 6 | Benchmark and README GIF | Improves judge confidence |
-| 7 | Submit Devpost entries | Final deliverable |
+| 1 | Real images and tuning | Proves the product works |
+| 2 | Add real annotations | Enables benchmark numbers |
+| 3 | Record demo video | Required for submissions |
+| 4 | Benchmark and README GIF | Improves judge confidence |
+| 5 | Submit Devpost entries | Final deliverable |

@@ -91,14 +91,21 @@ GitHub repo is public at `https://github.com/sriksven/braillevision`, Actions is
 
 ## 7. Public Demo
 
-Done when a public URL loads the app and accepts an uploaded image.
+Status: done.
 
-Recommended target:
+The Hugging Face Spaces deployment is live:
 
-- Hugging Face Spaces
-- SDK: Docker
-- Hardware: CPU Basic
-- Visibility: Public
+```text
+https://sriksven-braillevision.hf.space
+```
+
+Verified on May 31, 2026:
+
+- `/health` returned OK
+- `/` returned HTTP 200
+- `/upload` with `data/samples/hello.png` returned `hello`
+
+Browser TTS should still be checked manually in the deployed UI.
 
 ## 8. Demo Assets
 
