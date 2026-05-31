@@ -1,60 +1,50 @@
----
-title: BrailleVision
-colorFrom: blue
-colorTo: green
-sdk: docker
-pinned: false
-license: mit
----
-
-# BrailleVision
-
-[![CI](https://github.com/sriksven/braillevision/actions/workflows/ci.yml/badge.svg)](https://github.com/sriksven/braillevision/actions/workflows/ci.yml)
+## BrailleVision v2: Four Pipeline Ensemble
 
 **Live demo:** [https://sriksven-braillevision.hf.space](https://sriksven-braillevision.hf.space)
 
-BrailleVision is a computer-vision demo that reads camera or uploaded images of Braille and returns English text with an annotated detection overlay. The current implementation is validated on synthetic Braille images and is ready for the next phase: real embossed Braille image collection, tuning, and benchmarking.
+BrailleVision reads camera or uploaded images of Braille and returns English text with speech synthesis. **Version 2 runs four independent recognition pipelines in parallel and combines results using weighted confidence voting.**
 
-## Status
+### Four Pipelines
 
-- OpenCV-backed test suite passes locally: `20 passed`
-- Coverage from the latest local run: `72%`
-- Formatting and linting are clean with Black, isort, and flake8
-- Flask demo runs locally at `http://127.0.0.1:7860`
-- Docker build, health check, UI load, and sample upload were verified locally
-- Hugging Face Spaces Docker deployment is live and verified
-- 10 public real Braille photos have been downloaded locally for smoke testing
-- 80 augmented real-image variants were generated locally
+| Pipeline | Method | Training Data | Latency | Expected Accuracy |
+|----------|--------|---------------|---------|-------------------|
+| **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30–50% |
+| **B** | Roboflow pretrained YOLOv8 | 1,324 Braille images | ~300ms | ~70–80% |
+| **C** | GPT-4o Vision API | Billions of images | ~2–4s | ~90–94% |
+| **D** | Our finetuned YOLOv8 | 2,100 real Braille images | ~200ms | ~80–88% |
 
-## Features
+**Execution:** A, B, D return instantly (local inference). C updates when the API responds (~2–4s). Ensemble layer applies **agreement bonuses** — when multiple pipelines agree, their combined weight increases. Final output goes to TTS.
+
+### Key Features
 
 - CLAHE contrast normalization for uneven lighting
-- Dot detection for dark-on-light and light-on-dark images
-- Braille-cell segmentation from detected dot geometry
+- Blob detection for dark-on-light and light-on-dark images
+- DBSCAN-based segmentation handling tilted Braille
 - Grade 1 Braille lookup with capital and number indicators
 - Partial Grade 2 contraction table
-- Flask web demo with MJPEG stream, upload, stats, history, copy, and browser TTS
-- Synthetic image generation, augmentation, and benchmark scripts
-- Docker and GitHub Actions CI configuration
+- Four independent recognition pipelines with ensemble voting
+- Flask web demo with 4-column progressive results UI
+- Docker and GitHub Actions CI
+- OpenAI GPT-4o Vision integration
+- Roboflow API for pretrained Braille detection
 
-## Quick Start
-
-Use Python 3.11 if available.
+### Quick Start
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements-dev.txt
+pip install -r requirements.txt
 pip install -e .
-python scripts/generate_synthetic.py hello --out data/samples/hello.png
+
+# Create .env file with API keys
+echo "OPENAI_API_KEY=sk-..." > .env
+echo "ROBOFLOW_API_KEY=..." >> .env
+
+# Run the ensemble demo
 python app/app.py
 ```
 
-Open:
-
-```text
-http://127.0.0.1:7860
-```
+Open http://127.0.0.1:7860 and try the ensemble upload button to see all four pipelines work in parallel.
 
 ## Checks
 

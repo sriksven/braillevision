@@ -8,8 +8,11 @@ import time
 from pathlib import Path
 
 import numpy as np
+from dotenv import load_dotenv
 from flask import Flask, jsonify, render_template, request
 from PIL import Image, ImageDraw
+
+load_dotenv()
 
 from braillevision.pipeline import PipelineResult, run_pipeline
 from braillevision.recognition import CAPITAL_INDICATOR, pattern_for_char
@@ -170,6 +173,53 @@ def upload():
     payload = _result_json(result)
     payload["annotated_image_b64"] = image_to_data_url(result.annotated_frame)
     return jsonify(payload)
+
+
+@app.route("/upload_ensemble", methods=["POST"])
+def upload_ensemble():
+    """Run all four pipelines in ensemble mode."""
+    if "image" not in request.files:
+        return jsonify({"error": "missing image file"}), 400
+    uploaded = request.files["image"]
+    if uploaded.filename == "":
+        return jsonify({"error": "empty filename"}), 400
+
+    path = SAMPLES / f"upload_{int(time.time())}_{Path(uploaded.filename).name}"
+    uploaded.save(path)
+    frame = load_image(path)
+
+    from braillevision.pipeline_ensemble import run_ensemble_pipeline
+
+    result = run_ensemble_pipeline(frame)
+
+    return jsonify(
+        {
+            "final_text": result.final_text,
+            "final_confidence": round(result.final_confidence, 3),
+            "agreement": result.agreement,
+            "winner": result.winner,
+            "pipeline_a": {
+                "text": result.pipeline_a_text,
+                "confidence": round(result.pipeline_a_confidence, 3),
+                "latency_ms": result.pipeline_a_latency_ms,
+            },
+            "pipeline_b": {
+                "text": result.pipeline_b_text,
+                "confidence": round(result.pipeline_b_confidence, 3),
+                "latency_ms": result.pipeline_b_latency_ms,
+            },
+            "pipeline_c": {
+                "text": result.pipeline_c_text,
+                "confidence": round(result.pipeline_c_confidence, 3),
+                "latency_ms": result.pipeline_c_latency_ms,
+            },
+            "pipeline_d": {
+                "text": result.pipeline_d_text,
+                "confidence": round(result.pipeline_d_confidence, 3),
+                "latency_ms": result.pipeline_d_latency_ms,
+            },
+        }
+    )
 
 
 if __name__ == "__main__":
