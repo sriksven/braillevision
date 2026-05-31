@@ -18,7 +18,7 @@ data/yolo_training/
 data/samples/upload_*
 *.mp4
 *.mov
-PROJECT_STATUS.md
+docs/PROJECT_STATUS.md
 runs/
 *.pt
 yolov8n.pt
