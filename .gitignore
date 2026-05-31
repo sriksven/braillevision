@@ -10,6 +10,8 @@ venv/
 data/raw/*
 data/processed/*
 data/annotations/*
+data/training/
+data/yolo_training/
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 !data/annotations/.gitkeep
@@ -17,3 +19,7 @@ data/samples/upload_*
 *.mp4
 *.mov
 PROJECT_STATUS.md
+runs/
+*.pt
+yolov8n.pt
+Braille-Detection-V2-2/
