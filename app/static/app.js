@@ -1,82 +1,133 @@
-const detectedText = document.querySelector("#detectedText");
-const dotCount = document.querySelector("#dotCount");
-const cellCount = document.querySelector("#cellCount");
-const spacing = document.querySelector("#spacing");
-const confidence = document.querySelector("#confidence");
-const speakBtn = document.querySelector("#speakBtn");
-const copyBtn = document.querySelector("#copyBtn");
 const imageInput = document.querySelector("#imageInput");
 const upload = document.querySelector(".upload");
-const feed = document.querySelector("#feed");
-const historyEl = document.querySelector("#history");
+const preview = document.querySelector("#preview");
+const speakBtn = document.querySelector("#speakBtn");
+const finalText = document.querySelector("#finalText");
+const finalConfidence = document.querySelector("#finalConfidence");
+const agreementBadge = document.querySelector("#agreementBadge");
 
-let lastText = "";
-const history = [];
+const PIPELINES = ["a", "b", "c", "d"];
 
-function addHistory(text) {
-  if (!text || history.some((item) => item.text === text)) return;
-  history.unshift({ text, time: new Date().toLocaleTimeString() });
-  history.splice(10);
-  historyEl.innerHTML = history.map((item) => `<li><strong>${item.text}</strong><br><small>${item.time}</small></li>`).join("");
+function setColumn(p, data) {
+  const textEl = document.querySelector(`#text-${p}`);
+  const fillEl = document.querySelector(`#conf-${p}`);
+  const confLabel = document.querySelector(`#conf-label-${p}`);
+  const latEl = document.querySelector(`#lat-${p}`);
+  const col = document.querySelector(`#col-${p}`);
+
+  col.classList.remove("pending");
+  if (data.error) {
+    textEl.textContent = "error";
+    textEl.title = data.error;
+    col.classList.add("errored");
+  } else {
+    textEl.textContent = data.text || "(no output)";
+    textEl.title = "";
+    col.classList.remove("errored");
+  }
+
+  const conf = Math.round((data.confidence || 0) * 100);
+  fillEl.style.width = `${conf}%`;
+  confLabel.textContent = `${conf}%`;
+  latEl.textContent = `${data.latency_ms ?? 0}ms`;
 }
 
-function updateResult(data) {
-  const text = data.text || "";
-  detectedText.textContent = text || "No Braille detected";
-  dotCount.textContent = data.dot_count ?? 0;
-  cellCount.textContent = data.cell_count ?? 0;
-  spacing.textContent = data.spacing ?? 0;
-  confidence.textContent = `${Math.round((data.confidence || 0) * 100)}%`;
-  if (text && text !== lastText) {
-    lastText = text;
-    addHistory(text);
+function resetColumns() {
+  PIPELINES.forEach((p) => {
+    document.querySelector(`#text-${p}`).textContent = "Processing…";
+    document.querySelector(`#conf-${p}`).style.width = "0%";
+    document.querySelector(`#conf-label-${p}`).textContent = "—";
+    document.querySelector(`#lat-${p}`).textContent =
+      p === "c" ? "thinking…" : "running…";
+    const col = document.querySelector(`#col-${p}`);
+    col.classList.add("pending");
+    col.classList.remove("errored");
+  });
+  finalText.textContent = "Waiting for pipelines…";
+  finalConfidence.textContent = "—";
+  agreementBadge.textContent = "—";
+  agreementBadge.className = "agreement-badge agreement-none";
+}
+
+function applyFinal(data) {
+  finalText.textContent = data.final_text || "(no consensus)";
+  finalConfidence.textContent = `${Math.round((data.final_confidence || 0) * 100)}% confidence`;
+  agreementBadge.textContent =
+    `Agreement: ${data.agreement} · Winner: ${data.winner === "none" ? "—" : "Pipeline " + data.winner}`;
+  agreementBadge.className = `agreement-badge agreement-${data.agreement}`;
+}
+
+function handleEvent(event) {
+  if (event.phase === "fast") {
+    setColumn("a", event.pipeline_a);
+    setColumn("b", event.pipeline_b);
+    setColumn("d", event.pipeline_d);
+  } else if (event.phase === "final") {
+    setColumn("a", event.pipeline_a);
+    setColumn("b", event.pipeline_b);
+    setColumn("c", event.pipeline_c);
+    setColumn("d", event.pipeline_d);
+    applyFinal(event);
+  } else if (event.phase === "error") {
+    finalText.textContent = `Error: ${event.error}`;
   }
 }
 
-async function pollResult() {
-  try {
-    const response = await fetch("/result");
-    updateResult(await response.json());
-  } catch {
-    // Keep the last visible result when a transient request fails.
+async function uploadEnsemble(file) {
+  resetColumns();
+  if (preview) {
+    preview.src = URL.createObjectURL(file);
+    preview.hidden = false;
+  }
+
+  const form = new FormData();
+  form.append("image", file);
+
+  const response = await fetch("/upload_ensemble", { method: "POST", body: form });
+  if (!response.ok || !response.body) {
+    finalText.textContent = "Upload failed";
+    return;
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let newline;
+    while ((newline = buffer.indexOf("\n")) >= 0) {
+      const line = buffer.slice(0, newline).trim();
+      buffer = buffer.slice(newline + 1);
+      if (line) {
+        try {
+          handleEvent(JSON.parse(line));
+        } catch {
+          // ignore partial / malformed lines
+        }
+      }
+    }
   }
 }
 
 speakBtn.addEventListener("click", () => {
-  const text = detectedText.textContent.trim();
-  if (!text || text === "No Braille detected") return;
+  const text = finalText.textContent.trim();
+  if (!text || text === "Upload an image to begin" || text === "Waiting for pipelines…") return;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 0.9;
-  speakBtn.textContent = "Speaking...";
+  speakBtn.textContent = "Speaking…";
   utterance.onend = () => {
-    speakBtn.textContent = "Speak";
+    speakBtn.textContent = "Speak Aloud";
   };
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 });
 
-copyBtn.addEventListener("click", async () => {
-  await navigator.clipboard.writeText(detectedText.textContent.trim());
-  copyBtn.textContent = "Copied";
-  setTimeout(() => {
-    copyBtn.textContent = "Copy";
-  }, 900);
-});
-
-async function uploadImage(file) {
-  const form = new FormData();
-  form.append("image", file);
-  const response = await fetch("/upload", { method: "POST", body: form });
-  const data = await response.json();
-  if (data.annotated_image_b64) {
-    feed.src = data.annotated_image_b64;
-  }
-  updateResult(data);
-}
-
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
-  if (file) uploadImage(file);
+  if (file) uploadEnsemble(file);
 });
 
 upload.addEventListener("dragover", (event) => {
@@ -86,9 +137,5 @@ upload.addEventListener("dragover", (event) => {
 upload.addEventListener("drop", (event) => {
   event.preventDefault();
   const file = event.dataTransfer.files[0];
-  if (file) uploadImage(file);
+  if (file) uploadEnsemble(file);
 });
-
-setInterval(pollResult, 500);
-pollResult();
-

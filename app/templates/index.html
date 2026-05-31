@@ -7,48 +7,95 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
-    <main class="shell">
-      <section class="feed-panel">
+    <main class="app">
+      <header class="topbar">
         <div class="brand">
           <span class="mark">BV</span>
           <div>
             <h1>BrailleVision</h1>
-            <p>Live Braille image recognition</p>
+            <p>Four-pipeline Braille recognition ensemble</p>
           </div>
         </div>
-        <img id="feed" class="feed" src="{{ url_for('video_feed') }}" alt="Annotated Braille feed">
-      </section>
-
-      <aside class="side-panel">
-        <section class="readout">
-          <div class="label">Detected text</div>
-          <div id="detectedText" class="detected">Waiting for Braille...</div>
-          <div class="actions">
-            <button id="speakBtn" type="button">Speak</button>
-            <button id="copyBtn" type="button">Copy</button>
-          </div>
-        </section>
-
-        <section class="stats">
-          <div><span id="dotCount">0</span><small>dots</small></div>
-          <div><span id="cellCount">0</span><small>cells</small></div>
-          <div><span id="spacing">0</span><small>spacing</small></div>
-          <div><span id="confidence">0%</span><small>confidence</small></div>
-        </section>
-
         <label class="upload" for="imageInput">
           <input id="imageInput" type="file" accept="image/*">
           <strong>Upload Braille Image</strong>
-          <span>Click or drop an image here</span>
+          <span>Click or drop an image to run all four pipelines</span>
         </label>
+      </header>
 
-        <section>
-          <div class="label">History</div>
-          <ol id="history" class="history"></ol>
-        </section>
-      </aside>
+      <section class="final-result" id="finalResult">
+        <div class="final-main">
+          <div class="label">Final — ensemble vote</div>
+          <div id="finalText" class="final-text">Upload an image to begin</div>
+          <div class="final-meta">
+            <span id="agreementBadge" class="agreement-badge agreement-none">—</span>
+            <span id="finalConfidence" class="final-confidence">—</span>
+          </div>
+        </div>
+        <div class="final-side">
+          <img id="preview" class="preview" alt="Uploaded Braille image" hidden>
+          <button id="speakBtn" type="button">Speak Aloud</button>
+        </div>
+      </section>
+
+      <section class="ensemble-grid">
+        <article class="pipeline-col" id="col-a">
+          <div class="pipeline-header">
+            <span class="pipeline-label">A</span>
+            <div class="pipeline-titles">
+              <span class="pipeline-method">Classical CV</span>
+              <span class="pipeline-sub">DBSCAN + lookup</span>
+            </div>
+            <span class="pipeline-latency" id="lat-a">—</span>
+          </div>
+          <div class="pipeline-text" id="text-a">Waiting…</div>
+          <div class="confidence-bar"><div class="confidence-fill" id="conf-a" style="width:0%"></div></div>
+          <div class="confidence-label" id="conf-label-a">—</div>
+        </article>
+
+        <article class="pipeline-col" id="col-b">
+          <div class="pipeline-header">
+            <span class="pipeline-label">B</span>
+            <div class="pipeline-titles">
+              <span class="pipeline-method">Roboflow model</span>
+              <span class="pipeline-sub">Pretrained YOLOv8</span>
+            </div>
+            <span class="pipeline-latency" id="lat-b">—</span>
+          </div>
+          <div class="pipeline-text" id="text-b">Waiting…</div>
+          <div class="confidence-bar"><div class="confidence-fill" id="conf-b" style="width:0%"></div></div>
+          <div class="confidence-label" id="conf-label-b">—</div>
+        </article>
+
+        <article class="pipeline-col" id="col-c">
+          <div class="pipeline-header">
+            <span class="pipeline-label">C</span>
+            <div class="pipeline-titles">
+              <span class="pipeline-method">GPT-4o Vision</span>
+              <span class="pipeline-sub">OpenAI API</span>
+            </div>
+            <span class="pipeline-latency" id="lat-c">—</span>
+          </div>
+          <div class="pipeline-text" id="text-c">Waiting…</div>
+          <div class="confidence-bar"><div class="confidence-fill" id="conf-c" style="width:0%"></div></div>
+          <div class="confidence-label" id="conf-label-c">—</div>
+        </article>
+
+        <article class="pipeline-col" id="col-d">
+          <div class="pipeline-header">
+            <span class="pipeline-label">D</span>
+            <div class="pipeline-titles">
+              <span class="pipeline-method">Our finetuned model</span>
+              <span class="pipeline-sub">YOLOv8 · ~2,100 imgs</span>
+            </div>
+            <span class="pipeline-latency" id="lat-d">—</span>
+          </div>
+          <div class="pipeline-text" id="text-d">Waiting…</div>
+          <div class="confidence-bar"><div class="confidence-fill" id="conf-d" style="width:0%"></div></div>
+          <div class="confidence-label" id="conf-label-d">—</div>
+        </article>
+      </section>
     </main>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>
 </html>
-

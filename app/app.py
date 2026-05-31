@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import itertools
+import json
+import queue
 import threading
 import time
 from pathlib import Path
 
 import numpy as np
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request, stream_with_context
 from PIL import Image, ImageDraw
 
 load_dotenv()
@@ -175,9 +177,55 @@ def upload():
     return jsonify(payload)
 
 
+def _pipeline_json(result: object | None) -> dict[str, object]:
+    """Normalise a single-pipeline result object into the UI payload shape."""
+    if result is None:
+        return {"text": "", "confidence": 0.0, "latency_ms": 0, "error": None}
+    return {
+        "text": getattr(result, "text", "") or "",
+        "confidence": round(float(getattr(result, "confidence", 0.0)), 3),
+        "latency_ms": int(getattr(result, "latency_ms", 0) or 0),
+        "error": getattr(result, "error", None),
+    }
+
+
+def _ensemble_final_json(result) -> dict[str, object]:
+    return {
+        "final_text": result.final_text,
+        "final_confidence": round(result.final_confidence, 3),
+        "agreement": result.agreement,
+        "winner": result.winner,
+        "pipeline_a": {
+            "text": result.pipeline_a_text,
+            "confidence": round(result.pipeline_a_confidence, 3),
+            "latency_ms": result.pipeline_a_latency_ms,
+        },
+        "pipeline_b": {
+            "text": result.pipeline_b_text,
+            "confidence": round(result.pipeline_b_confidence, 3),
+            "latency_ms": result.pipeline_b_latency_ms,
+        },
+        "pipeline_c": {
+            "text": result.pipeline_c_text,
+            "confidence": round(result.pipeline_c_confidence, 3),
+            "latency_ms": result.pipeline_c_latency_ms,
+        },
+        "pipeline_d": {
+            "text": result.pipeline_d_text,
+            "confidence": round(result.pipeline_d_confidence, 3),
+            "latency_ms": result.pipeline_d_latency_ms,
+        },
+    }
+
+
 @app.route("/upload_ensemble", methods=["POST"])
 def upload_ensemble():
-    """Run all four pipelines in ensemble mode."""
+    """Run all four pipelines and stream results as newline-delimited JSON.
+
+    The fast local pipelines (A, B, D) are emitted as soon as they finish so the
+    UI can paint immediately; the GPT-4o pipeline (C) and final ensemble vote
+    arrive in a second event once the API call returns.
+    """
     if "image" not in request.files:
         return jsonify({"error": "missing image file"}), 400
     uploaded = request.files["image"]
@@ -190,36 +238,42 @@ def upload_ensemble():
 
     from braillevision.pipeline_ensemble import run_ensemble_pipeline
 
-    result = run_ensemble_pipeline(frame)
+    events: queue.Queue = queue.Queue()
 
-    return jsonify(
-        {
-            "final_text": result.final_text,
-            "final_confidence": round(result.final_confidence, 3),
-            "agreement": result.agreement,
-            "winner": result.winner,
-            "pipeline_a": {
-                "text": result.pipeline_a_text,
-                "confidence": round(result.pipeline_a_confidence, 3),
-                "latency_ms": result.pipeline_a_latency_ms,
-            },
-            "pipeline_b": {
-                "text": result.pipeline_b_text,
-                "confidence": round(result.pipeline_b_confidence, 3),
-                "latency_ms": result.pipeline_b_latency_ms,
-            },
-            "pipeline_c": {
-                "text": result.pipeline_c_text,
-                "confidence": round(result.pipeline_c_confidence, 3),
-                "latency_ms": result.pipeline_c_latency_ms,
-            },
-            "pipeline_d": {
-                "text": result.pipeline_d_text,
-                "confidence": round(result.pipeline_d_confidence, 3),
-                "latency_ms": result.pipeline_d_latency_ms,
-            },
-        }
-    )
+    def on_ab_ready(a, b, d):
+        events.put(
+            {
+                "phase": "fast",
+                "pipeline_a": _pipeline_json(a),
+                "pipeline_b": _pipeline_json(b),
+                "pipeline_d": _pipeline_json(d),
+            }
+        )
+
+    def on_complete(result):
+        events.put({"phase": "final", **_ensemble_final_json(result)})
+
+    def worker():
+        try:
+            run_ensemble_pipeline(
+                frame, on_ab_ready=on_ab_ready, on_complete=on_complete
+            )
+        except Exception as exc:  # surface failures to the client instead of hanging
+            events.put({"phase": "error", "error": str(exc)})
+        finally:
+            events.put(None)  # sentinel
+
+    threading.Thread(target=worker, daemon=True).start()
+
+    @stream_with_context
+    def generate():
+        while True:
+            event = events.get()
+            if event is None:
+                break
+            yield json.dumps(event) + "\n"
+
+    return Response(generate(), mimetype="application/x-ndjson")
 
 
 if __name__ == "__main__":
