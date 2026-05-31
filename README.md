@@ -11,9 +11,15 @@ BrailleVision reads camera or uploaded images of Braille and returns English tex
 | **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30–50% |
 | **B** | Roboflow pretrained YOLOv8 | 1,324 Braille images | ~300ms | ~70–80% |
 | **C** | GPT-4o Vision API | Billions of images | ~2–4s | ~90–94% |
-| **D** | Our finetuned YOLOv8 | 2,100 real Braille images | ~200ms | ~80–88% |
+| **D** | Our finetuned YOLOv8 | 290 real Braille images | ~200ms | ~80–88% |
 
-**Execution:** A, B, D return instantly (local inference). C updates when the API responds (~2–4s). Ensemble layer applies **agreement bonuses** — when multiple pipelines agree, their combined weight increases. Final output goes to TTS.
+**Execution:** A, B, D return instantly (local inference). C updates when the API responds (~2–4s). Ensemble layer applies **agreement bonuses** — when multiple pipelines agree (Levenshtein similarity ≥ 0.85), their combined weight increases by 1.3x. Final output goes to TTS.
+
+**Weighted Voting Scheme:**
+- Pipeline A (classical CV): weight = 1.0
+- Pipeline B (Roboflow YOLOv8): weight = 2.5
+- Pipeline C (GPT-4o): weight = 4.0 (highest accuracy potential)
+- Pipeline D (finetuned YOLOv8): weight = 3.0
 
 ### Key Features
 
@@ -22,11 +28,13 @@ BrailleVision reads camera or uploaded images of Braille and returns English tex
 - DBSCAN-based segmentation handling tilted Braille
 - Grade 1 Braille lookup with capital and number indicators
 - Partial Grade 2 contraction table
-- Four independent recognition pipelines with ensemble voting
-- Flask web demo with 4-column progressive results UI
+- **Four independent recognition pipelines with ensemble voting**
+- **Progressive UI showing partial results from A/B/D while C loads**
+- Flask web demo with 4-column pipeline comparison
 - Docker and GitHub Actions CI
 - OpenAI GPT-4o Vision integration
 - Roboflow API for pretrained Braille detection
+- Local YOLOv8 inference (Pipeline D) with finetuned weights
 
 ### Quick Start
 
