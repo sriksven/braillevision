@@ -290,3 +290,41 @@ document.addEventListener("keydown", (e) => {
 webcamOverlay.addEventListener("click", (e) => {
   if (e.target === webcamOverlay) closeCamera();
 });
+
+/* ── Global Drag and Drop ─────────────────────────────────────── */
+const globalDropzone = document.getElementById("globalDropzone");
+let dragCounter = 0;
+
+window.addEventListener("dragenter", (e) => {
+  e.preventDefault();
+  dragCounter++;
+  if (dragCounter === 1) {
+    globalDropzone.classList.add("active");
+  }
+});
+
+window.addEventListener("dragleave", (e) => {
+  e.preventDefault();
+  dragCounter--;
+  if (dragCounter === 0) {
+    globalDropzone.classList.remove("active");
+  }
+});
+
+window.addEventListener("dragover", (e) => {
+  e.preventDefault();
+});
+
+window.addEventListener("drop", (e) => {
+  e.preventDefault();
+  dragCounter = 0;
+  globalDropzone.classList.remove("active");
+  
+  if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    const file = e.dataTransfer.files[0];
+    if (file.type.startsWith("image/")) {
+      uploadEnsemble(file);
+    }
+  }
+});
+

@@ -593,3 +593,27 @@ body {
   .header-actions { grid-template-columns: 1fr 1fr; }
   .theme-toggle { grid-column: span 2; }
 }
+
+/* ── Global Dropzone ────────────────────────────────────────────── */
+.global-dropzone {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(var(--accent-rgb, 88, 86, 214), 0.1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 4px dashed var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.global-dropzone.active {
+  opacity: 1;
+}
