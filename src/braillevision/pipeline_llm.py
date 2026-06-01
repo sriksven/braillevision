@@ -10,33 +10,12 @@ import cv2
 import numpy as np
 from openai import OpenAI
 
-SYSTEM_PROMPT = """You are a specialized Braille image interpreter.
-
-Your only task is to inspect an image containing Braille cells,
-identify the Braille dot patterns, and translate them into English text.
-
-Rules:
-1. Treat the image as Braille unless it is clearly not Braille.
-2. Identify each Braille cell from left to right.
-3. Use standard 6-dot English Braille unless the image clearly uses 8-dot Braille.
-4. For each cell, determine which dots are raised using this numbering:
-
-   1 4
-   2 5
-   3 6
-
-5. Translate the Braille cells into English letters, numbers, or punctuation.
-6. Output only the final English translation unless the user explicitly asks for reasoning.
-7. If the Braille is ambiguous, say the most likely reading and briefly mention the ambiguity.
-8. Do not identify people, objects, or unrelated image details.
-9. Do not hallucinate missing cells. If a cell is unreadable, use [?].
-10. Preserve spaces if visible gaps between Braille cells indicate word breaks.
-
-Example:
-Image shows cells:
-dots 1-2-5, dots 1-5, dots 1-2-3, dots 1-2-3, dots 1-3-5
-Output:
-hello"""
+SYSTEM_PROMPT = """You are a Braille reading expert.
+This image contains physical raised-dot Braille.
+Read the Braille dots and output ONLY the English text they spell.
+Do not describe the image. Do not say what you see.
+Output only the decoded English word or words, nothing else.
+If you cannot read it output: UNCLEAR"""
 
 USER_PROMPT = (
     "Translate the Braille in this image into English. Return only the English text."
@@ -54,7 +33,13 @@ class LLMResult:
 
 def frame_to_base64(frame: np.ndarray) -> str:
     """Convert frame to JPEG base64 for API."""
-    _, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 90])
+    h, w = frame.shape[:2]
+    if min(h, w) < 512:
+        scale = 512 / min(h, w)
+        frame = cv2.resize(
+            frame, (int(w * scale), int(h * scale)), interpolation=cv2.INTER_CUBIC
+        )
+    _, buffer = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, 95])
     return base64.b64encode(buffer).decode("utf-8")
 
 
