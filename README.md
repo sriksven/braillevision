@@ -45,9 +45,8 @@ BrailleVision reads camera or uploaded images of Braille and returns English tex
 - **Progressive UI showing partial results from A and B while C loads**
 - Flask web demo with 3-column pipeline comparison
 - Docker and GitHub Actions CI
-- OpenAI GPT-4o Vision integration
+- OpenAI GPT-4o Vision integration with deterministic prompting and high-res upscaling
 - Roboflow API for pretrained Braille detection
-- Local YOLOv8 inference (Pipeline D) with finetuned weights
 
 ### Quick Start
 

@@ -50,7 +50,7 @@ but recognition from camera images is challenging. Existing tools either:
 Solution: BrailleVision v2 runs THREE independent recognition pipelines in parallel:
 - Pipeline A: Classical CV (CLAHE, SimpleBlobDetector, DBSCAN) - instant, explainable
 - Pipeline B: Roboflow pretrained YOLOv8 - trained on 1,324 Braille images
-- Pipeline C: GPT-4o Vision API - multimodal recognition with 90%+ accuracy
+- Pipeline C: GPT-4o Vision API - utilizing programmatic image upscaling to force "High-Res" mode, allowing the foundation model to accurately count tiny 6-dot Braille cells.
 
 Results combine using weighted confidence voting: when pipelines agree (similarity >= 0.85), 
 their confidence multiplies 1.3x. Final output: text + speech.
@@ -88,8 +88,7 @@ Solution: BrailleVision v2 combines three approaches with smart ensemble voting:
 2) Roboflow YOLOv8 (Pipeline B): Pretrained on 1,324 annotated Braille images. 
    Fast local inference (~300ms), ready-made weights.
 
-3) GPT-4o Multimodal (Pipeline C): Vision foundation model with 90%+ accuracy on 
-   real-world images. Slower (~2-4s) but highest confidence.
+3) GPT-4o Multimodal (Pipeline C): Vision foundation model. We programmatically upscale small uploads to force OpenAI's "High-Res" mode, combined with a highly deterministic zero-shot prompt. Slower (~2-4s) but highest confidence.
 
 Ensemble Layer: Weighted voting (A:1.0, B:2.5, C:4.0) with agreement 
 bonuses (x1.3 when Levenshtein similarity >= 0.85).
