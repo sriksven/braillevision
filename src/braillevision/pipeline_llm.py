@@ -29,7 +29,7 @@ class LLMResult:
     text: str
     confidence: float
     latency_ms: int
-    model: str = "gpt-4-turbo"
+    model: str = "gpt-4o"
     error: str | None = None
 
 
@@ -60,7 +60,7 @@ def run_llm_pipeline(frame: np.ndarray, api_key: str | None = None) -> LLMResult
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4-turbo",
+            model="gpt-4o",
             max_tokens=200,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
