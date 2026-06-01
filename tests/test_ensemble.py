@@ -15,13 +15,10 @@ def test_full_agreement():
         c_text="hello",
         c_conf=0.92,
         c_lat=2000,
-        d_text="hello",
-        d_conf=0.85,
-        d_lat=200,
     )
     assert result.final_text == "hello"
     assert result.agreement == "full"
-    assert result.winner in ("A", "B", "C", "D")
+    assert result.winner in ("A", "B", "C")
     assert result.final_confidence > 0.8
 
 
@@ -37,9 +34,6 @@ def test_empty_inputs():
         c_text="",
         c_conf=0.0,
         c_lat=0,
-        d_text="",
-        d_conf=0.0,
-        d_lat=0,
     )
     assert result.final_text == ""
     assert result.winner == "none"
@@ -58,9 +52,6 @@ def test_majority_agreement():
         c_text="world",
         c_conf=0.92,
         c_lat=2000,
-        d_text="hello",
-        d_conf=0.85,
-        d_lat=200,
     )
     assert result.agreement in ("majority", "split")
     assert result.final_text in ("hello", "world")
@@ -78,9 +69,6 @@ def test_high_confidence_single_pipeline():
         c_text="correct answer",
         c_conf=0.98,
         c_lat=2000,
-        d_text="d",
-        d_conf=0.1,
-        d_lat=200,
     )
     assert result.final_text == "correct answer"
     assert result.winner == "C"
@@ -88,7 +76,7 @@ def test_high_confidence_single_pipeline():
 
 
 def test_weights_preferred_models():
-    """Test that C (GPT) and D (finetuned) are preferred over A."""
+    """Test that C (GPT) is preferred over A."""
     result = ensemble(
         a_text="a",
         a_conf=0.9,
@@ -99,9 +87,6 @@ def test_weights_preferred_models():
         c_text="c",
         c_conf=0.7,
         c_lat=2000,
-        d_text="d",
-        d_conf=0.6,
-        d_lat=200,
     )
     # C should win due to highest weight (4.0) and reasonable confidence
     assert result.winner in ("C", "A")  # C preferred but A has higher conf
