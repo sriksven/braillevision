@@ -1,3 +1,12 @@
+---
+title: BrailleVision
+emoji: 👁
+colorFrom: gray
+colorTo: green
+sdk: docker
+app_port: 7860
+---
+
 ## BrailleVision v2: Four Pipeline Ensemble
 
 **Live demo:** [https://sriksven-braillevision.hf.space](https://sriksven-braillevision.hf.space)
