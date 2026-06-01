@@ -16,5 +16,5 @@ COPY . .
 RUN pip install --no-cache-dir -e .
 
 EXPOSE 7860
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--threads", "4", "app.app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--threads", "4", "--timeout", "120", "--worker-class", "gthread", "app.app:app"]
 

@@ -83,9 +83,32 @@ async function uploadEnsemble(file) {
   const form = new FormData();
   form.append("image", file);
 
-  const response = await fetch("/upload_ensemble", { method: "POST", body: form });
-  if (!response.ok || !response.body) {
+  let response;
+  try {
+    response = await fetch("/upload_ensemble", { method: "POST", body: form });
+  } catch (err) {
+    console.error("Fetch failed:", err);
+    finalText.textContent = "Upload failed - network error";
+    return;
+  }
+
+  if (!response.ok) {
+    console.error("Response not ok:", response.status, response.statusText);
     finalText.textContent = "Upload failed";
+    return;
+  }
+
+  if (!response.body) {
+    // Fallback: read entire response as text (for proxied environments)
+    const text = await response.text();
+    const lines = text.split("\n").filter((l) => l.trim());
+    for (const line of lines) {
+      try {
+        handleEvent(JSON.parse(line));
+      } catch {
+        // ignore
+      }
+    }
     return;
   }
 
