@@ -47,6 +47,7 @@ def test_llm_valid_response():
     """Test that valid response is processed correctly."""
     frame = np.ones((100, 100, 3), dtype=np.uint8)
     import math
+
     mock_resp = MagicMock()
     mock_resp.choices[0].message.content = "hello world"
     mock_token = MagicMock()
