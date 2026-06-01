@@ -2,23 +2,21 @@
 """Download Roboflow Braille Detection V2 dataset."""
 
 import os
-import shutil
-from pathlib import Path
 
 try:
     from roboflow import Roboflow
 except ImportError:
-    print("⚠️ roboflow not installed, installing...")
+    print("[WARN] roboflow not installed, installing...")
     os.system("pip install roboflow -q")
     from roboflow import Roboflow
 
 # Roboflow credentials
-API_KEY = "lMDrLJtK2dRsHPmUfsj4"
+API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
 WORKSPACE = "braille-detection"
 PROJECT = "braille-detection-v2"
 VERSION = 2
 
-print("📥 Downloading Roboflow Braille Detection V2...")
+print("Downloading Roboflow Braille Detection V2...")
 print(f"   Workspace: {WORKSPACE}")
 print(f"   Project: {PROJECT}")
 print(f"   Version: {VERSION}")
@@ -27,7 +25,7 @@ rf = Roboflow(api_key=API_KEY)
 project = rf.workspace(WORKSPACE).project(PROJECT)
 dataset = project.version(VERSION).download("yolov8")
 
-print(f"✅ Downloaded to: {dataset.location}")
+print(f"[OK] Downloaded to: {dataset.location}")
 print(f"   Contents: {os.listdir(dataset.location)}")
 
 # Show dataset structure

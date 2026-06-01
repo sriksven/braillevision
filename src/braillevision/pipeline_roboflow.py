@@ -13,18 +13,23 @@ try:
     REQUESTS_AVAILABLE = True
 except ImportError:
     REQUESTS_AVAILABLE = False
+import os
 
 from .detection import Dot, filter_noise_keypoints
-from .segmentation import cluster_dots_to_cells
 from .recognition import cells_to_text
+from .segmentation import cluster_dots_to_cells
 
-ROBOFLOW_API_KEY = "lMDrLJtK2dRsHPmUfsj4"
+ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
 ROBOFLOW_MODEL = "braille-detection-v2-xpwue"
 ROBOFLOW_VERSION = 1
-ROBOFLOW_URL = (
-    f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
-    f"?api_key={ROBOFLOW_API_KEY}&confidence=30&overlap=30"
-)
+
+
+def _roboflow_url() -> str:
+    key = ROBOFLOW_API_KEY or os.getenv("ROBOFLOW_API_KEY", "")
+    return (
+        f"https://detect.roboflow.com/{ROBOFLOW_MODEL}/{ROBOFLOW_VERSION}"
+        f"?api_key={key}&confidence=30&overlap=30"
+    )
 
 
 @dataclass
@@ -40,7 +45,7 @@ class RoboflowResult:
 def run_roboflow_pipeline(frame: np.ndarray) -> RoboflowResult:
     """
     Send frame to Roboflow hosted inference API.
-    Returns dot detections → segments → recognizes text.
+    Returns dot detections -> segments -> recognizes text.
     """
     if not REQUESTS_AVAILABLE:
         return RoboflowResult(
@@ -58,7 +63,7 @@ def run_roboflow_pipeline(frame: np.ndarray) -> RoboflowResult:
         b64 = base64.b64encode(buffer.tobytes()).decode("utf-8")
 
         response = requests.post(
-            ROBOFLOW_URL,
+            _roboflow_url(),
             data=b64,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             timeout=15,

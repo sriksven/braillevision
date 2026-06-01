@@ -11,7 +11,14 @@ from pathlib import Path
 
 import numpy as np
 from dotenv import load_dotenv
-from flask import Flask, Response, jsonify, render_template, request, stream_with_context
+from flask import (
+    Flask,
+    Response,
+    jsonify,
+    render_template,
+    request,
+    stream_with_context,
+)
 from PIL import Image, ImageDraw
 
 load_dotenv()

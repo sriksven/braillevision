@@ -34,18 +34,18 @@ function setColumn(p, data) {
 
 function resetColumns() {
   PIPELINES.forEach((p) => {
-    document.querySelector(`#text-${p}`).textContent = "Processing…";
+    document.querySelector(`#text-${p}`).textContent = "Processing...";
     document.querySelector(`#conf-${p}`).style.width = "0%";
-    document.querySelector(`#conf-label-${p}`).textContent = "—";
+    document.querySelector(`#conf-label-${p}`).textContent = "-";
     document.querySelector(`#lat-${p}`).textContent =
-      p === "c" ? "thinking…" : "running…";
+      p === "c" ? "thinking..." : "running...";
     const col = document.querySelector(`#col-${p}`);
     col.classList.add("pending");
     col.classList.remove("errored");
   });
-  finalText.textContent = "Waiting for pipelines…";
-  finalConfidence.textContent = "—";
-  agreementBadge.textContent = "—";
+  finalText.textContent = "Waiting for pipelines...";
+  finalConfidence.textContent = "-";
+  agreementBadge.textContent = "-";
   agreementBadge.className = "agreement-badge agreement-none";
 }
 
@@ -53,7 +53,7 @@ function applyFinal(data) {
   finalText.textContent = data.final_text || "(no consensus)";
   finalConfidence.textContent = `${Math.round((data.final_confidence || 0) * 100)}% confidence`;
   agreementBadge.textContent =
-    `Agreement: ${data.agreement} · Winner: ${data.winner === "none" ? "—" : "Pipeline " + data.winner}`;
+    `Agreement: ${data.agreement} - Winner: ${data.winner === "none" ? "-" : "Pipeline " + data.winner}`;
   agreementBadge.className = `agreement-badge agreement-${data.agreement}`;
 }
 
@@ -114,10 +114,10 @@ async function uploadEnsemble(file) {
 
 speakBtn.addEventListener("click", () => {
   const text = finalText.textContent.trim();
-  if (!text || text === "Upload an image to begin" || text === "Waiting for pipelines…") return;
+  if (!text || text === "Upload an image to begin" || text === "Waiting for pipelines...") return;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 0.9;
-  speakBtn.textContent = "Speaking…";
+  speakBtn.textContent = "Speaking...";
   utterance.onend = () => {
     speakBtn.textContent = "Speak Aloud";
   };

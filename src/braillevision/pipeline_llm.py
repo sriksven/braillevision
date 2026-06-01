@@ -9,7 +9,12 @@ import cv2
 import numpy as np
 from openai import OpenAI
 
-SYSTEM_PROMPT = """You are an expert at reading Braille. Given an image of Braille text, extract and output ONLY the English text that the Braille represents. Do not add explanations or formatting. If the image contains no readable Braille, respond with exactly "UNCLEAR"."""
+SYSTEM_PROMPT = (
+    "You are an expert at reading Braille. Given an image of Braille text, "
+    "extract and output ONLY the English text that the Braille represents. "
+    "Do not add explanations or formatting. If the image contains no readable "
+    'Braille, respond with exactly "UNCLEAR".'
+)
 
 USER_PROMPT = "Read the Braille in this image and output only the English text."
 

@@ -1,6 +1,6 @@
 # BrailleVision v2: Four-Pipeline Ensemble - Devpost Submission Guide
 
-## Status: ✅ READY FOR FINAL SUBMISSION
+## Status: READY FOR FINAL SUBMISSION
 
 BrailleVision v2 runs four independent recognition pipelines in parallel and combines results using weighted confidence voting for maximum accuracy.
 
@@ -22,12 +22,12 @@ BrailleVision v2 runs four independent recognition pipelines in parallel and com
 
 | Pipeline | Method | Training Data | Latency | Accuracy |
 |----------|--------|---------------|---------|----------|
-| **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30–50% |
-| **B** | Roboflow pretrained YOLOv8 | 1,324 images | ~300ms | ~70–80% |
-| **C** | GPT-4o Vision API | Billions | ~2–4s | ~90–94% |
-| **D** | Our finetuned YOLOv8 | 290 real images | ~200ms | ~80–88% |
+| **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30-50% |
+| **B** | Roboflow pretrained YOLOv8 | 1,324 images | ~300ms | ~70-80% |
+| **C** | GPT-4o Vision API | Billions | ~2-4s | ~90-94% |
+| **D** | Our finetuned YOLOv8 | 290 real images | ~200ms | ~80-88% |
 
-**Execution**: A, B, D return instantly (local). C updates async (2–4s). Ensemble applies agreement bonuses for consensus.
+**Execution**: A, B, D return instantly (local). C updates async (2-4s). Ensemble applies agreement bonuses for consensus.
 
 ---
 
@@ -54,13 +54,13 @@ Solution: BrailleVision v2 runs FOUR independent recognition pipelines in parall
 - Pipeline C: GPT-4o Vision API - multimodal recognition with 90%+ accuracy
 - Pipeline D: Our finetuned YOLOv8 - trained on 290 real Braille photos
 
-Results combine using weighted confidence voting: when pipelines agree (similarity ≥ 0.85), 
+Results combine using weighted confidence voting: when pipelines agree (similarity >= 0.85), 
 their confidence multiplies 1.3x. Final output: text + speech.
 
 Healthcare Impact: Enables inclusive reading for patients and care settings. Works 
 offline (pipelines A,B,D) with optional cloud fallback (C) for maximum accuracy.
 
-Tech: Python · Flask · YOLOv8 · OpenAI API · Docker · GitHub Actions
+Tech: Python, Flask, YOLOv8, OpenAI API, Docker, GitHub Actions
 ```
 
 ---
@@ -97,11 +97,11 @@ Solution: BrailleVision v2 combines four approaches with smart ensemble voting:
    dataset. Balances accuracy and speed (~200ms).
 
 Ensemble Layer: Weighted voting (A:1.0, B:2.5, C:4.0, D:3.0) with agreement 
-bonuses (×1.3 when Levenshtein similarity ≥ 0.85).
+bonuses (x1.3 when Levenshtein similarity >= 0.85).
 
 Results: Local inference for A/B/D (instant). Optional async C for refinement.
 
-Tech: Python · YOLOv8 · OpenAI API · Ensemble voting · Flask · Docker
+Tech: Python, YOLOv8, OpenAI API, Ensemble voting, Flask, Docker
 ```
 
 ---
@@ -122,16 +122,16 @@ camera images of embossed Braille.
 
 BrailleVision v2 solves this by combining four independent AI/CV approaches:
 
-🔷 Pipeline A - Explainable CV: CLAHE + blob detection + DBSCAN. Works anywhere 
+Pipeline A - Explainable CV: CLAHE + blob detection + DBSCAN. Works anywhere 
    without GPU, fully interpretable, zero learning curve.
 
-🔷 Pipeline B - Pretrained YOLO: 1,324-image Roboflow dataset. Fast local inference 
+Pipeline B - Pretrained YOLO: 1,324-image Roboflow dataset. Fast local inference 
    on any device.
 
-🔷 Pipeline C - Multimodal AI: GPT-4o vision with 90%+ accuracy. Handles extreme 
+Pipeline C - Multimodal AI: GPT-4o vision with 90%+ accuracy. Handles extreme 
    angles/lighting/blur.
 
-🔷 Pipeline D - Finetuned YOLO: 290 real Braille photos + Angelina ICCV 2021 dataset. 
+Pipeline D - Finetuned YOLO: 290 real Braille photos + Angelina ICCV 2021 dataset. 
    Optimized for production.
 
 Smart Ensemble Voting: Combines predictions using weighted confidence + agreement 
@@ -139,11 +139,11 @@ bonuses. When models agree, confidence multiplies (1.3x). Final output: English 
 + speech synthesis.
 
 Accessibility Features:
-✓ Web interface for uploaded images
-✓ Offline mode (A, B, D work without internet)
-✓ Speech synthesis for output
-✓ Docker deployment on Hugging Face Spaces
-✓ Real-time webcam support
+- Web interface for uploaded images
+- Offline mode (A, B, D work without internet)
+- Speech synthesis for output
+- Docker deployment on Hugging Face Spaces
+- Real-time webcam support
 
 Proven Results: Tested on Wikimedia Braille photos, real-world lighting conditions, 
 rotated signs, partial visibility. Architecture proven with 29/29 unit tests + 
@@ -152,7 +152,7 @@ integration tests.
 Path Forward: Scale to mobile deployment (React Native), add Grade 3 Braille 
 support, multi-language translation.
 
-Tech: Python · YOLOv8 · GPT-4o · OpenCV · Ensemble ML · Flask · Docker · 
+Tech: Python, YOLOv8, GPT-4o, OpenCV, Ensemble ML, Flask, Docker, 
 GitHub Actions
 ```
 
@@ -200,9 +200,9 @@ Architecture Overview:
 │                          │                                      │
 │        ┌─────────────────┴──────────────────┐                  │
 │        │ Ensemble Voting Layer              │                  │
-│        │ • Weighted confidence (A:1.0, B:2.5, C:4.0, D:3.0)   │
-│        │ • Agreement bonuses (×1.3)         │                  │
-│        │ • Levenshtein similarity (≥0.85)   │                  │
+│        │ - Weighted confidence (A:1.0, B:2.5, C:4.0, D:3.0)   │
+│        │ - Agreement bonuses (x1.3)         │                  │
+│        │ - Levenshtein similarity (>=0.85)  │                  │
 │        └─────────────────┬──────────────────┘                  │
 │                          │                                      │
 │                          ▼                                       │
@@ -215,11 +215,11 @@ Training Data:
 - Total: 2,100+ annotated examples
 
 Results:
-✓ All 29 unit tests passing
-✓ Real-image validation on Wikimedia photos
-✓ Docker deployment on Hugging Face Spaces
-✓ GitHub Actions CI/CD
-✓ <200ms latency for A+B+D (local)
+- All 29 unit tests passing
+- Real-image validation on Wikimedia photos
+- Docker deployment on Hugging Face Spaces
+- GitHub Actions CI/CD
+- <200ms latency for A+B+D (local)
 
 What's Working:
 - Character recognition: Accurate on clean/normal lighting
@@ -233,8 +233,8 @@ Accessibility Impact:
 - Speech output for eyes-free reading
 - Mobile-friendly web interface
 
-Tech Stack: Python · Flask · YOLOv8 · OpenCV · DBSCAN · GPT-4o · 
-Docker · GitHub Actions · Hugging Face Spaces
+Tech Stack: Python, Flask, YOLOv8, OpenCV, DBSCAN, GPT-4o, 
+Docker, GitHub Actions, Hugging Face Spaces
 
 Next Steps: Mobile deployment, Grade 3 Braille, multi-language translation
 ```
@@ -272,4 +272,4 @@ Next Steps: Mobile deployment, Grade 3 Braille, multi-language translation
 | 3 | The AI Hack | 5:00am EDT Jun 1 | Ready |
 | 4 | BrailleVision | 6:30am EDT Jun 1 | Ready |
 
-**All content ready. Begin submissions!** 🚀
+**All content ready. Begin submissions!**

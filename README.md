@@ -8,12 +8,12 @@ BrailleVision reads camera or uploaded images of Braille and returns English tex
 
 | Pipeline | Method | Training Data | Latency | Expected Accuracy |
 |----------|--------|---------------|---------|-------------------|
-| **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30–50% |
-| **B** | Roboflow pretrained YOLOv8 | 1,324 Braille images | ~300ms | ~70–80% |
-| **C** | GPT-4o Vision API | Billions of images | ~2–4s | ~90–94% |
-| **D** | Our finetuned YOLOv8 | 290 real Braille images | ~200ms | ~80–88% |
+| **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30-50% |
+| **B** | Roboflow pretrained YOLOv8 | 1,324 Braille images | ~300ms | ~70-80% |
+| **C** | GPT-4o Vision API | Billions of images | ~2-4s | ~90-94% |
+| **D** | Our finetuned YOLOv8 | 290 real Braille images | ~200ms | ~80-88% |
 
-**Execution:** A, B, D return instantly (local inference). C updates when the API responds (~2–4s). Ensemble layer applies **agreement bonuses** — when multiple pipelines agree (Levenshtein similarity ≥ 0.85), their combined weight increases by 1.3x. Final output goes to TTS.
+**Execution:** A, B, D return instantly (local inference). C updates when the API responds (~2-4s). Ensemble layer applies **agreement bonuses** - when multiple pipelines agree (Levenshtein similarity >= 0.85), their combined weight increases by 1.3x. Final output goes to TTS.
 
 **Weighted Voting Scheme:**
 - Pipeline A (classical CV): weight = 1.0
@@ -223,15 +223,15 @@ The pipeline was validated on synthetic Braille (20 passing tests, 72% coverage)
 
 | Condition    | CER Range | Accuracy | Notes |
 |--------------|-----------|----------|-------|
-| Normal light | 0.6–2.0 | 40–85% | Metal stairs, washroom best performers |
-| Side light   | 0.9–2.8 | 10–55% | Performance drops with shadow patterns |
-| Dim          | 0.6–1.9 | 20–70% | Surprisingly stable; good for night use |
-| Blur         | 0.8–2.5 | 20–60% | Graceful degradation as expected |
-| 5° rotation  | 0.8–2.8 | 15–60% | DBSCAN segmentation handles tilts |
+| Normal light | 0.6-2.0 | 40-85% | Metal stairs, washroom best performers |
+| Side light   | 0.9-2.8 | 10-55% | Performance drops with shadow patterns |
+| Dim          | 0.6-1.9 | 20-70% | Surprisingly stable; good for night use |
+| Blur         | 0.8-2.5 | 20-60% | Graceful degradation as expected |
+| 5 deg rotation | 0.8-2.8 | 15-60% | DBSCAN segmentation handles tilts |
 
 ### Key Findings
 
-- **What works:** Clean Braille photos at reading distance with consistent lighting → 50–85% character accuracy
+- **What works:** Clean Braille photos at reading distance with consistent lighting - 50-85% character accuracy
 - **What needs work:** High-resolution image preprocessing (1000+ pixel-wide signs need better contrast normalization)
 - **Architecture sound:** Recognition tables and DBSCAN clustering are correct; detection tuning is the blocker
 - **Path forward:** Adaptive blob detection per image (estimate image complexity and adjust thresholds) or ML preprocessing

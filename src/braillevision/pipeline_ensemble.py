@@ -6,7 +6,7 @@ import threading
 import numpy as np
 from dotenv import load_dotenv
 
-from .ensemble import ensemble, EnsembleResult
+from .ensemble import EnsembleResult, ensemble
 from .pipeline import run_pipeline
 from .pipeline_finetuned import run_finetuned_pipeline
 from .pipeline_llm import run_llm_pipeline
@@ -24,8 +24,8 @@ def run_ensemble_pipeline(
     """
     Run all four pipelines in parallel threads.
 
-    A, B, D are local — finish in ~300ms.
-    C is an API call — finishes in ~2–4s.
+    A, B, D are local - finish in ~300ms.
+    C is an API call - finishes in ~2-4s.
 
     on_ab_ready fires when A, B, D are all done (instant results for UI).
     on_complete fires when all four are done.

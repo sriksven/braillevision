@@ -1,7 +1,5 @@
 """Tests for ensemble voting layer."""
 
-import pytest
-
 from braillevision.ensemble import ensemble
 
 

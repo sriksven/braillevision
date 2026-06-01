@@ -16,8 +16,8 @@ except ImportError:
 
 from .detection import Dot, filter_noise_keypoints
 from .preprocessing import preprocess
-from .segmentation import cluster_dots_to_cells
 from .recognition import cells_to_text
+from .segmentation import cluster_dots_to_cells
 
 MODEL_PATH = Path("models/braille_finetuned.pt")
 FALLBACK_PATH = Path("models/yolov8n.pt")
@@ -47,9 +47,9 @@ def _get_model():
     if MODEL_PATH.exists():
         try:
             _model = YOLO(str(MODEL_PATH))
-            print(f"✅ Loaded finetuned model: {MODEL_PATH}")
+            print(f"[OK] Loaded finetuned model: {MODEL_PATH}")
         except Exception as e:
-            print(f"⚠️ Could not load finetuned model: {e}, using fallback")
+            print(f"[WARN] Could not load finetuned model: {e}, using fallback")
             _model = YOLO("yolov8n.pt")
     else:
         _model = YOLO("yolov8n.pt")
