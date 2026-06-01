@@ -217,19 +217,14 @@ def _ensemble_final_json(result) -> dict[str, object]:
             "confidence": round(result.pipeline_c_confidence, 3),
             "latency_ms": result.pipeline_c_latency_ms,
         },
-        "pipeline_d": {
-            "text": result.pipeline_d_text,
-            "confidence": round(result.pipeline_d_confidence, 3),
-            "latency_ms": result.pipeline_d_latency_ms,
-        },
     }
 
 
 @app.route("/upload_ensemble", methods=["POST"])
 def upload_ensemble():
-    """Run all four pipelines and stream results as newline-delimited JSON.
+    """Run all three pipelines and stream results as newline-delimited JSON.
 
-    The fast local pipelines (A, B, D) are emitted as soon as they finish so the
+    The fast local pipelines (A, B) are emitted as soon as they finish so the
     UI can paint immediately; the GPT-4o pipeline (C) and final ensemble vote
     arrive in a second event once the API call returns.
     """
@@ -247,13 +242,12 @@ def upload_ensemble():
 
     events: queue.Queue = queue.Queue()
 
-    def on_ab_ready(a, b, d):
+    def on_ab_ready(a, b):
         events.put(
             {
                 "phase": "fast",
                 "pipeline_a": _pipeline_json(a),
                 "pipeline_b": _pipeline_json(b),
-                "pipeline_d": _pipeline_json(d),
             }
         )
 

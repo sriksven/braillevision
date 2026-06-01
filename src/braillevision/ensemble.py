@@ -23,11 +23,8 @@ class EnsembleResult:
     pipeline_c_text: str
     pipeline_c_confidence: float
     pipeline_c_latency_ms: int
-    pipeline_d_text: str
-    pipeline_d_confidence: float
-    pipeline_d_latency_ms: int
-    agreement: str  # "full" | "majority" | "split" | "none"
-    winner: str  # "A" | "B" | "C" | "D" | "none"
+    agreement: str  # "full" | "majority" | "none"
+    winner: str  # "A" | "B" | "C" | "none"
 
 
 def _similarity(a: str, b: str) -> float:
@@ -53,29 +50,25 @@ def ensemble(
     c_text: str,
     c_conf: float,
     c_lat: int,
-    d_text: str,
-    d_conf: float,
-    d_lat: int,
 ) -> EnsembleResult:
     """
-    Weighted voting across four pipelines.
+    Weighted voting across three pipelines.
 
     Weights reflect expected accuracy (normalized to not overpower pure 100% confidence):
       A (classical CV)     = 1.00
       B (Roboflow model)   = 1.02
       C (GPT-4o Vision)    = 1.05
-      D (our finetuned)    = 1.03
 
     Agreement bonus: pairwise agreement boosts combined weight by 1.3x.
     """
-    texts = [a_text, b_text, c_text, d_text]
-    confs = [a_conf, b_conf, c_conf, d_conf]
-    weights = [1.00, 1.02, 1.05, 1.03]
-    labels = ["A", "B", "C", "D"]
+    texts = [a_text, b_text, c_text]
+    confs = [a_conf, b_conf, c_conf]
+    weights = [1.00, 1.02, 1.05]
+    labels = ["A", "B", "C"]
     THRESHOLD = 0.85
 
     # All pairwise similarities
-    pairs = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 3)]
+    pairs = [(0, 1), (0, 2), (1, 2)]
     agreements = {
         (i, j): _similarity(texts[i], texts[j]) >= THRESHOLD for i, j in pairs
     }
@@ -88,12 +81,10 @@ def ensemble(
 
     # Count agreeing pipelines
     agreeing = sum(1 for (i, j), a in agreements.items() if a)
-    if agreeing == 6:
+    if agreeing == 3:
         agreement = "full"
-    elif agreeing >= 2:
+    elif agreeing >= 1:
         agreement = "majority"
-    elif agreeing == 1:
-        agreement = "split"
     else:
         agreement = "none"
 
@@ -120,16 +111,13 @@ def ensemble(
             pipeline_c_text=c_text,
             pipeline_c_confidence=c_conf,
             pipeline_c_latency_ms=c_lat,
-            pipeline_d_text=d_text,
-            pipeline_d_confidence=d_conf,
-            pipeline_d_latency_ms=d_lat,
             agreement=agreement,
             winner="none",
         )
 
     final_conf = min(
         0.99,
-        confs[best_idx] * (1.1 if agreement not in ("none", "split") else 1.0),
+        confs[best_idx] * (1.1 if agreement != "none" else 1.0),
     )
 
     return EnsembleResult(
@@ -144,9 +132,6 @@ def ensemble(
         pipeline_c_text=c_text,
         pipeline_c_confidence=c_conf,
         pipeline_c_latency_ms=c_lat,
-        pipeline_d_text=d_text,
-        pipeline_d_confidence=d_conf,
-        pipeline_d_latency_ms=d_lat,
         agreement=agreement,
         winner=labels[best_idx],
     )

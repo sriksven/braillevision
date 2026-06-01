@@ -1,33 +1,32 @@
-# BrailleVision v2: Four-Pipeline Ensemble - Devpost Submission Guide
+# BrailleVision v2: Three-Pipeline Ensemble - Devpost Submission Guide
 
 ## Status: READY FOR FINAL SUBMISSION
 
-BrailleVision v2 runs four independent recognition pipelines in parallel and combines results using weighted confidence voting for maximum accuracy.
+BrailleVision v2 runs three independent recognition pipelines in parallel and combines results using weighted confidence voting for maximum accuracy.
 
 ---
 
 ## Quick Summary
 
-**Project**: BrailleVision v2: Four-Pipeline Ensemble  
+**Project**: BrailleVision v2: Three-Pipeline Ensemble  
 **GitHub**: https://github.com/sriksven/braillevision  
 **Live Demo**: https://sriksven-braillevision.hf.space  
 **Team**: Solo  
-**Architecture**: Ensemble voting with weighted confidence (A:1.0, B:2.5, C:4.0, D:3.0)
+**Architecture**: Ensemble voting with weighted confidence (A:1.0, B:2.5, C:4.0)
 
-**What it does**: Read embossed Braille from camera images and return English text + speech using four parallel recognition pipelines.
+**What it does**: Read embossed Braille from camera images and return English text + speech using three parallel recognition pipelines.
 
 ---
 
-## The Four Pipelines
+## The Three Pipelines
 
 | Pipeline | Method | Training Data | Latency | Accuracy |
 |----------|--------|---------------|---------|----------|
 | **A** | Classical CV (DBSCAN + lookup) | Rules-based | ~50ms | ~30-50% |
 | **B** | Roboflow pretrained YOLOv8 | 1,324 images | ~300ms | ~70-80% |
 | **C** | GPT-4o Vision API | Billions | ~2-4s | ~90-94% |
-| **D** | Our finetuned YOLOv8 | 290 real images | ~200ms | ~80-88% |
 
-**Execution**: A, B, D return instantly (local). C updates async (2-4s). Ensemble applies agreement bonuses for consensus.
+**Execution**: A, B return instantly (local). C updates async (2-4s). Ensemble applies agreement bonuses for consensus.
 
 ---
 
@@ -37,7 +36,7 @@ BrailleVision v2 runs four independent recognition pipelines in parallel and com
 **Deadline**: 3:15am EDT Jun 1  
 **Category**: Healthcare & MedTech
 
-**Title**: BrailleVision v2 - Four-Pipeline Braille Recognition Ensemble
+**Title**: BrailleVision v2 - Three-Pipeline Braille Recognition Ensemble
 
 **Tagline**: Multi-model ensemble reads Braille with 90%+ accuracy
 
@@ -48,17 +47,16 @@ but recognition from camera images is challenging. Existing tools either:
 1) Require extensive real-image training data, or
 2) Cannot reliably handle varied lighting/angles
 
-Solution: BrailleVision v2 runs FOUR independent recognition pipelines in parallel:
+Solution: BrailleVision v2 runs THREE independent recognition pipelines in parallel:
 - Pipeline A: Classical CV (CLAHE, SimpleBlobDetector, DBSCAN) - instant, explainable
 - Pipeline B: Roboflow pretrained YOLOv8 - trained on 1,324 Braille images
 - Pipeline C: GPT-4o Vision API - multimodal recognition with 90%+ accuracy
-- Pipeline D: Our finetuned YOLOv8 - trained on 290 real Braille photos
 
 Results combine using weighted confidence voting: when pipelines agree (similarity >= 0.85), 
 their confidence multiplies 1.3x. Final output: text + speech.
 
 Healthcare Impact: Enables inclusive reading for patients and care settings. Works 
-offline (pipelines A,B,D) with optional cloud fallback (C) for maximum accuracy.
+offline (pipelines A, B) with optional cloud fallback (C) for maximum accuracy.
 
 Tech: Python, Flask, YOLOv8, OpenAI API, Docker, GitHub Actions
 ```
@@ -71,7 +69,7 @@ Tech: Python, Flask, YOLOv8, OpenAI API, Docker, GitHub Actions
 
 **Title**: BrailleVision v2 - Ensemble Object Detection & Multi-Model Voting
 
-**Tagline**: Four-model ensemble achieves 90%+ accuracy on Braille recognition
+**Tagline**: Three-model ensemble achieves 90%+ accuracy on Braille recognition
 
 **Description**:
 ```
@@ -82,7 +80,7 @@ Problem: Braille recognition from camera images requires:
 
 Most ML approaches need 10K+ labeled images or extensive domain knowledge.
 
-Solution: BrailleVision v2 combines four approaches with smart ensemble voting:
+Solution: BrailleVision v2 combines three approaches with smart ensemble voting:
 
 1) Classical CV (Pipeline A): CLAHE contrast, SimpleBlobDetector dot extraction, 
    DBSCAN spatial clustering. Fast (<50ms), explainable, no training needed.
@@ -93,13 +91,10 @@ Solution: BrailleVision v2 combines four approaches with smart ensemble voting:
 3) GPT-4o Multimodal (Pipeline C): Vision foundation model with 90%+ accuracy on 
    real-world images. Slower (~2-4s) but highest confidence.
 
-4) Finetuned YOLOv8 (Pipeline D): Trained on 290 real Braille photos + Angelina 
-   dataset. Balances accuracy and speed (~200ms).
-
-Ensemble Layer: Weighted voting (A:1.0, B:2.5, C:4.0, D:3.0) with agreement 
+Ensemble Layer: Weighted voting (A:1.0, B:2.5, C:4.0) with agreement 
 bonuses (x1.3 when Levenshtein similarity >= 0.85).
 
-Results: Local inference for A/B/D (instant). Optional async C for refinement.
+Results: Local inference for A/B (instant). Optional async C for refinement.
 
 Tech: Python, YOLOv8, OpenAI API, Ensemble voting, Flask, Docker
 ```
@@ -120,7 +115,7 @@ Global Impact: 258 million people are visually impaired. Braille is their lifeli
 but 90% of sighted caregivers cannot read it. Existing tools don't handle real 
 camera images of embossed Braille.
 
-BrailleVision v2 solves this by combining four independent AI/CV approaches:
+BrailleVision v2 solves this by combining three independent AI/CV approaches:
 
 Pipeline A - Explainable CV: CLAHE + blob detection + DBSCAN. Works anywhere 
    without GPU, fully interpretable, zero learning curve.
@@ -131,16 +126,13 @@ Pipeline B - Pretrained YOLO: 1,324-image Roboflow dataset. Fast local inference
 Pipeline C - Multimodal AI: GPT-4o vision with 90%+ accuracy. Handles extreme 
    angles/lighting/blur.
 
-Pipeline D - Finetuned YOLO: 290 real Braille photos + Angelina ICCV 2021 dataset. 
-   Optimized for production.
-
 Smart Ensemble Voting: Combines predictions using weighted confidence + agreement 
 bonuses. When models agree, confidence multiplies (1.3x). Final output: English text 
 + speech synthesis.
 
 Accessibility Features:
 - Web interface for uploaded images
-- Offline mode (A, B, D work without internet)
+- Offline mode (A, B work without internet)
 - Speech synthesis for output
 - Docker deployment on Hugging Face Spaces
 - Real-time webcam support
@@ -164,13 +156,13 @@ GitHub Actions
 
 **Title**: BrailleVision v2 - Ensemble Braille Recognition
 
-**Tagline**: Four-model ensemble reads physical Braille with 90%+ accuracy
+**Tagline**: Three-model ensemble reads physical Braille with 90%+ accuracy
 
 **Description**:
 ```
 Challenge: Recognize Braille characters from camera images of real embossed paper.
 
-Solution: BrailleVision v2 implements a four-pipeline ensemble that learns from 
+Solution: BrailleVision v2 implements a three-pipeline ensemble that learns from 
 different data sources and approaches:
 
 Architecture Overview:
@@ -178,15 +170,15 @@ Architecture Overview:
 │ Input Frame                                                     │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
-│  │ Pipeline A   │  │ Pipeline B   │  │ Pipeline D   │          │
-│  │ Classical CV │  │ Roboflow     │  │ Finetuned    │          │
-│  │ ~50ms        │  │ ~300ms       │  │ ~200ms       │          │
-│  └──────────────┘  └──────────────┘  └──────────────┘          │
-│        │                 │                  │                   │
-│        └─────────────────┼──────────────────┘                   │
-│                          │                                      │
-│                          ▼ (0-500ms, all ready)                │
+│  ┌──────────────┐  ┌──────────────┐                            │
+│  │ Pipeline A   │  │ Pipeline B   │                            │
+│  │ Classical CV │  │ Roboflow     │                            │
+│  │ ~50ms        │  │ ~300ms       │                            │
+│  └──────────────┘  └──────────────┘                            │
+│        │                 │                                      │
+│        └─────────────────┼──────────────────┐                   │
+│                          │                  │                   │
+│                          ▼ (0-300ms, all ready)                │
 │                    ┌──────────────────┐                        │
 │                    │ Partial Results  │ ◄─ Show to user        │
 │                    └──────────────────┘                        │
@@ -200,7 +192,7 @@ Architecture Overview:
 │                          │                                      │
 │        ┌─────────────────┴──────────────────┐                  │
 │        │ Ensemble Voting Layer              │                  │
-│        │ - Weighted confidence (A:1.0, B:2.5, C:4.0, D:3.0)   │
+│        │ - Weighted confidence (A:1.0, B:2.5, C:4.0)          │
 │        │ - Agreement bonuses (x1.3)         │                  │
 │        │ - Levenshtein similarity (>=0.85)  │                  │
 │        └─────────────────┬──────────────────┘                  │
@@ -210,16 +202,14 @@ Architecture Overview:
 └─────────────────────────────────────────────────────────────────┘
 
 Training Data:
-- 290 real Braille photos (Angelina ICCV 2021 dataset)
 - 1,324 images (Roboflow dataset)
-- Total: 2,100+ annotated examples
 
 Results:
 - All 29 unit tests passing
 - Real-image validation on Wikimedia photos
 - Docker deployment on Hugging Face Spaces
 - GitHub Actions CI/CD
-- <200ms latency for A+B+D (local)
+- <300ms latency for A+B (local)
 
 What's Working:
 - Character recognition: Accurate on clean/normal lighting
@@ -229,7 +219,7 @@ What's Working:
 
 Accessibility Impact:
 - Works on any device with camera
-- Offline option (pipelines A,B,D)
+- Offline option (pipelines A,B)
 - Speech output for eyes-free reading
 - Mobile-friendly web interface
 

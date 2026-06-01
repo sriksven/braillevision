@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="BrailleVision - AI-powered Braille to English translation using four parallel recognition pipelines with ensemble voting.">
-    <title>BrailleVision - Braille Recognition</title>
+    <title>BrailleVision - Three-pipeline Braille Recognition</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
           </div>
           <div>
             <h1>BrailleVision</h1>
-            <p class="subtitle">Four-pipeline Braille recognition ensemble</p>
+            <p class="subtitle">Three-pipeline Braille recognition ensemble</p>
           </div>
         </div>
         <div class="header-actions">
@@ -146,20 +146,6 @@
           <div class="pipe-output" id="text-c">Waiting...</div>
           <div class="pipe-bar"><div class="pipe-fill" id="conf-c"></div></div>
           <div class="pipe-conf" id="conf-label-c">--</div>
-        </article>
-
-        <article class="pipeline-card" id="col-d">
-          <div class="pipe-head">
-            <span class="pipe-badge pipe-d">D</span>
-            <div class="pipe-info">
-              <span class="pipe-name">Finetuned model</span>
-              <span class="pipe-desc">YOLOv8 -- ~2,100 imgs</span>
-            </div>
-            <span class="pipe-latency" id="lat-d">--</span>
-          </div>
-          <div class="pipe-output" id="text-d">Waiting...</div>
-          <div class="pipe-bar"><div class="pipe-fill" id="conf-d"></div></div>
-          <div class="pipe-conf" id="conf-label-d">--</div>
         </article>
       </section>
 

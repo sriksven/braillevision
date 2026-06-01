@@ -18,7 +18,7 @@ const webcamVideo = document.querySelector("#webcamVideo");
 const webcamCanvas = document.querySelector("#webcamCanvas");
 const captureBtn = document.querySelector("#captureBtn");
 
-const PIPELINES = ["a", "b", "c", "d"];
+const PIPELINES = ["a", "b", "c"];
 let currentStream = null;
 
 /* ── Theme Toggle ─────────────────────────────────────────────── */
@@ -80,7 +80,7 @@ function resetColumns() {
     col.classList.remove("errored", "winner");
   });
   resultCard.classList.remove("has-result");
-  finalText.textContent = "Running all four pipelines...";
+  finalText.textContent = "Running all three pipelines...";
   finalConfidence.textContent = "--";
   agreementBadge.textContent = "--";
   agreementBadge.className = "badge badge-none";
