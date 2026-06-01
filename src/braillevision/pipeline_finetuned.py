@@ -94,27 +94,30 @@ def run_finetuned_pipeline(frame: np.ndarray) -> FinetunedResult:
         results = model(processed, verbose=False, conf=0.30, iou=0.45)
         boxes = results[0].boxes if results else []
 
-        dots = []
+        # YOLO predicts full characters, not individual dots.
+        detections = []
         for box in boxes:
-            x1, y1, x2, y2 = box.xyxy[0].tolist()
-            cx = (x1 + x2) / 2
-            cy = (y1 + y2) / 2
-            size = min(x2 - x1, y2 - y1) / 2
-            dots.append(Dot(float(cx), float(cy), float(size)))
+            x1 = box.xyxy[0][0].item()
+            class_id = int(box.cls[0].item())
+            class_name = model.names[class_id]
+            conf = float(box.conf[0].item())
+            detections.append({"x": x1, "class": class_name, "conf": conf})
 
-        filtered = filter_noise_keypoints(dots)
-        cells = cluster_dots_to_cells(filtered)
-        text = cells_to_text(cells)
+        # Sort predictions left-to-right by x coordinate
+        detections.sort(key=lambda d: d["x"])
+        
+        characters = [d["class"].lower() for d in detections]
+        text = "".join(characters)
 
         latency_ms = int((time.time() - start) * 1000)
-        confidence = 0.75 if len(filtered) > 3 else 0.1
+        confidence = sum(d["conf"] for d in detections) / len(detections) if detections else 0.1
 
         return FinetunedResult(
             text=text,
             confidence=confidence,
             latency_ms=latency_ms,
-            dot_count=len(filtered),
-            cell_count=len(cells),
+            dot_count=0,
+            cell_count=len(detections),
             model_path=str(MODEL_PATH if MODEL_PATH.exists() else "base"),
         )
 

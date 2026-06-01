@@ -74,30 +74,26 @@ def run_roboflow_pipeline(frame: np.ndarray) -> RoboflowResult:
         latency_ms = int((time.time() - start) * 1000)
         predictions = data.get("predictions", [])
 
-        # Convert predictions to Dot objects
-        dots = []
-        for pred in predictions:
-            cx = pred["x"]
-            cy = pred["y"]
-            size = max(pred["width"], pred["height"]) / 2
-            dots.append(Dot(float(cx), float(cy), float(size)))
-
-        filtered = filter_noise_keypoints(dots)
-        cells = cluster_dots_to_cells(filtered)
-        text = cells_to_text(cells)
+        # YOLO predicts full characters, not individual dots.
+        # Sort predictions left-to-right by x coordinate
+        predictions.sort(key=lambda p: p["x"])
+        
+        # Extract class labels and concatenate
+        characters = [p.get("class", "").lower() for p in predictions]
+        text = "".join(characters)
 
         avg_conf = (
             sum(p["confidence"] for p in predictions) / len(predictions)
             if predictions
-            else 0.0
+            else 0.1
         )
 
         return RoboflowResult(
             text=text,
-            confidence=avg_conf if cells else 0.1,
+            confidence=avg_conf,
             latency_ms=latency_ms,
-            dot_count=len(filtered),
-            cell_count=len(cells),
+            dot_count=0,
+            cell_count=len(predictions),
         )
 
     except Exception as exc:
