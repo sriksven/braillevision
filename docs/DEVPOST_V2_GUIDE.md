@@ -32,8 +32,8 @@ BrailleVision v2 runs three independent recognition pipelines in parallel and co
 
 ## Submission Templates
 
-### Hackathon 1: Hackspire (Healthcare & MedTech)
-**Deadline**: 3:15am EDT Jun 1  
+### Submission Template 1
+**Deadline**: Confirm on Devpost before submitting
 **Category**: Healthcare & MedTech
 
 **Title**: BrailleVision v2 - Three-Pipeline Braille Recognition Ensemble
@@ -64,8 +64,8 @@ Tech: Python, Flask, YOLOv8, OpenAI API, Docker, GitHub Actions, Android/Capacit
 
 ---
 
-### Hackathon 2: Devlance (AI & Intelligent Systems)
-**Deadline**: 3:15am EDT Jun 1  
+### Submission Template 2
+**Deadline**: Confirm on Devpost before submitting
 **Category**: AI & Intelligent Systems
 
 **Title**: BrailleVision v2 - Ensemble Object Detection & Multi-Model Voting
@@ -102,8 +102,8 @@ Tech: Python, YOLOv8, OpenAI API, Ensemble voting, Flask, Docker, Android/Capaci
 
 ---
 
-### Hackathon 3: The AI Hack (Most Impactful AI Solution)
-**Deadline**: 5:00am EDT Jun 1  
+### Submission Template 3
+**Deadline**: Confirm on Devpost before submitting
 **Category**: Most Impactful AI Solution
 
 **Title**: BrailleVision v2 - Democratizing Braille Accessibility with AI
@@ -151,8 +151,8 @@ GitHub Actions
 
 ---
 
-### Hackathon 4: BrailleVision Hackathon (Accessibility/CV)
-**Deadline**: 6:30am EDT Jun 1  
+### Submission Template 4
+**Deadline**: Confirm on Devpost before submitting
 **Category**: Accessibility / Computer Vision
 
 **Title**: BrailleVision v2 - Ensemble Braille Recognition
@@ -254,13 +254,6 @@ Next Steps: Mobile deployment, Grade 3 Braille, multi-language translation
 
 ---
 
-## Deadlines Summary
+## Submission Summary
 
-| # | Hackathon | Deadline | Status |
-|---|-----------|----------|--------|
-| 1 | Hackspire | 3:15am EDT Jun 1 | Ready |
-| 2 | Devlance | 3:15am EDT Jun 1 | Ready |
-| 3 | The AI Hack | 5:00am EDT Jun 1 | Ready |
-| 4 | BrailleVision | 6:30am EDT Jun 1 | Ready |
-
-**All content ready. Begin submissions!**
+Four reusable submission templates are ready. Confirm the target event, category, and deadline on Devpost before submitting.
