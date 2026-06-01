@@ -4,6 +4,12 @@
 
 BrailleVision reads camera or uploaded images of Braille and returns English text with speech synthesis. **Version 2 runs four independent recognition pipelines in parallel and combines results using weighted confidence voting.**
 
+### Screenshots
+
+| Upload Interface | Ensemble Results |
+|:---:|:---:|
+| ![Upload](docs/screenshot_upload.png) | ![Results](docs/screenshot_results.png) |
+
 ### Four Pipelines
 
 | Pipeline | Method | Training Data | Latency | Expected Accuracy |
