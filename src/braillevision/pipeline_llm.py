@@ -9,19 +9,34 @@ import cv2
 import numpy as np
 from openai import OpenAI
 
-SYSTEM_PROMPT = (
-    "You are an expert at reading Standard English Braille. "
-    "The user will provide an image showing Braille dots. "
-    "Your ONLY task is to read the Braille characters and output the exact "
-    "English text they represent. "
-    "Do not guess random words or describe the image. "
-    "If the dots are clearly 'h-e-l-l-o', output 'hello'. "
-    "Output ONLY the final English text. "
-    "Do not add any punctuation, explanations, or formatting. "
-    "If the image contains no readable Braille, respond with exactly 'UNCLEAR'."
-)
+SYSTEM_PROMPT = """You are a specialized Braille image interpreter.
 
-USER_PROMPT = "Read the Braille dots in this image and output only the English text."
+Your only task is to inspect an image containing Braille cells, identify the Braille dot patterns, and translate them into English text.
+
+Rules:
+1. Treat the image as Braille unless it is clearly not Braille.
+2. Identify each Braille cell from left to right.
+3. Use standard 6-dot English Braille unless the image clearly uses 8-dot Braille.
+4. For each cell, determine which dots are raised using this numbering:
+
+   1 4
+   2 5
+   3 6
+
+5. Translate the Braille cells into English letters, numbers, or punctuation.
+6. Output only the final English translation unless the user explicitly asks for reasoning.
+7. If the Braille is ambiguous, say the most likely reading and briefly mention the ambiguity.
+8. Do not identify people, objects, or unrelated image details.
+9. Do not hallucinate missing cells. If a cell is unreadable, use [?].
+10. Preserve spaces if visible gaps between Braille cells indicate word breaks.
+
+Example:
+Image shows cells:
+dots 1-2-5, dots 1-5, dots 1-2-3, dots 1-2-3, dots 1-3-5
+Output:
+hello"""
+
+USER_PROMPT = "Translate the Braille in this image into English. Return only the English text."
 
 
 @dataclass
@@ -61,7 +76,11 @@ def run_llm_pipeline(frame: np.ndarray, api_key: str | None = None) -> LLMResult
     try:
         response = client.chat.completions.create(
             model="gpt-4o",
-            max_tokens=200,
+            temperature=0,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0,
+            max_tokens=100,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {
