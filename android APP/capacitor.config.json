@@ -1,0 +1,9 @@
+{
+  "appId": "com.sriksven.braillevision",
+  "appName": "BrailleVision",
+  "webDir": "www",
+  "server": {
+    "url": "https://sriksven-braillevision.hf.space",
+    "cleartext": true
+  }
+}

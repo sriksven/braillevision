@@ -56,9 +56,10 @@ Results combine using weighted confidence voting: when pipelines agree (similari
 their confidence multiplies 1.3x. Final output: text + speech.
 
 Healthcare Impact: Enables inclusive reading for patients and care settings. Works 
-offline (pipelines A, B) with optional cloud fallback (C) for maximum accuracy.
+offline (pipelines A, B) with optional cloud fallback (C) for maximum accuracy. 
+Includes a native Android app wrapper for seamless mobile scanning.
 
-Tech: Python, Flask, YOLOv8, OpenAI API, Docker, GitHub Actions
+Tech: Python, Flask, YOLOv8, OpenAI API, Docker, GitHub Actions, Android/Capacitor
 ```
 
 ---
@@ -94,8 +95,9 @@ Ensemble Layer: Weighted voting (A:1.0, B:2.5, C:4.0) with agreement
 bonuses (x1.3 when Levenshtein similarity >= 0.85).
 
 Results: Local inference for A/B (instant). Optional async C for refinement.
+Includes a native Android hybrid app to allow native camera integration for blind users.
 
-Tech: Python, YOLOv8, OpenAI API, Ensemble voting, Flask, Docker
+Tech: Python, YOLOv8, OpenAI API, Ensemble voting, Flask, Docker, Android/Capacitor
 ```
 
 ---

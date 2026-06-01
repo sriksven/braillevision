@@ -82,6 +82,15 @@ To auto-format:
 .venv/bin/isort .
 ```
 
+## Android Hybrid App
+
+A native Android wrapper is included in the `android APP` directory, built using Capacitor. It wraps the mobile-responsive Web UI and streams directly from the backend, including native camera permissions for scanning.
+
+To build the APK:
+1. Ensure Android Studio is installed.
+2. Open the `android APP/android` folder in Android Studio.
+3. Build and run on an emulator or physical device.
+
 ## Docker
 
 Start Docker Desktop first, then run:
