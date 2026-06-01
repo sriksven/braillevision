@@ -12,9 +12,12 @@ from openai import OpenAI
 SYSTEM_PROMPT = (
     "You are an expert at reading Standard English Braille. "
     "The user will provide an image showing Braille dots. "
-    "Your ONLY task is to read the Braille characters and output the exact English text they represent. "
-    "Do not guess random words or describe the image. If the dots are clearly 'h-e-l-l-o', output 'hello'. "
-    "Output ONLY the final English text. Do not add any punctuation, explanations, or formatting. "
+    "Your ONLY task is to read the Braille characters and output the exact "
+    "English text they represent. "
+    "Do not guess random words or describe the image. "
+    "If the dots are clearly 'h-e-l-l-o', output 'hello'. "
+    "Output ONLY the final English text. "
+    "Do not add any punctuation, explanations, or formatting. "
     "If the image contains no readable Braille, respond with exactly 'UNCLEAR'."
 )
 
