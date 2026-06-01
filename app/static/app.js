@@ -72,7 +72,7 @@ function resetColumns() {
   PIPELINES.forEach((p) => {
     document.querySelector(`#text-${p}`).textContent = "Processing...";
     document.querySelector(`#conf-${p}`).style.width = "0%";
-    document.querySelector(`#conf-label-${p}`).textContent = "--";
+    document.querySelector(`#conf-label-${p}`).textContent = "";
     document.querySelector(`#lat-${p}`).textContent =
       p === "c" ? "thinking..." : "running...";
     const col = document.querySelector(`#col-${p}`);
@@ -81,8 +81,8 @@ function resetColumns() {
   });
   resultCard.classList.remove("has-result");
   finalText.textContent = "Running all three pipelines...";
-  finalConfidence.textContent = "--";
-  agreementBadge.textContent = "--";
+  finalConfidence.textContent = "";
+  agreementBadge.textContent = "";
   agreementBadge.className = "badge badge-none";
 }
 
@@ -93,7 +93,7 @@ function applyFinal(data) {
   const label =
     `Agreement: ${data.agreement}` +
     (data.winner && data.winner !== "none"
-      ? ` -- Winner: Pipeline ${data.winner}`
+      ? ` • Winner: Pipeline ${data.winner}`
       : "");
   agreementBadge.textContent = label;
   agreementBadge.className = `badge badge-${data.agreement}`;
@@ -111,12 +111,10 @@ function handleEvent(event) {
   if (event.phase === "fast") {
     setColumn("a", event.pipeline_a);
     setColumn("b", event.pipeline_b);
-    setColumn("d", event.pipeline_d);
   } else if (event.phase === "final") {
     setColumn("a", event.pipeline_a);
     setColumn("b", event.pipeline_b);
     setColumn("c", event.pipeline_c);
-    setColumn("d", event.pipeline_d);
     applyFinal(event);
   } else if (event.phase === "error") {
     finalText.textContent = `Error: ${event.error}`;
