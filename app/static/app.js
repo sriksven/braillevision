@@ -1,13 +1,27 @@
+/* ── DOM References ────────────────────────────────────────────── */
 const imageInput = document.querySelector("#imageInput");
-const upload = document.querySelector(".upload");
+const uploadLabel = document.querySelector("#uploadLabel");
 const preview = document.querySelector("#preview");
+const previewPlaceholder = document.querySelector("#previewPlaceholder");
+const previewContainer = document.querySelector("#previewContainer");
 const speakBtn = document.querySelector("#speakBtn");
 const finalText = document.querySelector("#finalText");
 const finalConfidence = document.querySelector("#finalConfidence");
 const agreementBadge = document.querySelector("#agreementBadge");
+const resultCard = document.querySelector("#finalResult");
+
+/* Webcam elements */
+const cameraBtn = document.querySelector("#cameraBtn");
+const webcamOverlay = document.querySelector("#webcamOverlay");
+const webcamClose = document.querySelector("#webcamClose");
+const webcamVideo = document.querySelector("#webcamVideo");
+const webcamCanvas = document.querySelector("#webcamCanvas");
+const captureBtn = document.querySelector("#captureBtn");
 
 const PIPELINES = ["a", "b", "c", "d"];
+let currentStream = null;
 
+/* ── Pipeline Column Rendering ────────────────────────────────── */
 function setColumn(p, data) {
   const textEl = document.querySelector(`#text-${p}`);
   const fillEl = document.querySelector(`#conf-${p}`);
@@ -36,25 +50,39 @@ function resetColumns() {
   PIPELINES.forEach((p) => {
     document.querySelector(`#text-${p}`).textContent = "Processing...";
     document.querySelector(`#conf-${p}`).style.width = "0%";
-    document.querySelector(`#conf-label-${p}`).textContent = "-";
+    document.querySelector(`#conf-label-${p}`).textContent = "--";
     document.querySelector(`#lat-${p}`).textContent =
       p === "c" ? "thinking..." : "running...";
     const col = document.querySelector(`#col-${p}`);
     col.classList.add("pending");
-    col.classList.remove("errored");
+    col.classList.remove("errored", "winner");
   });
-  finalText.textContent = "Waiting for pipelines...";
-  finalConfidence.textContent = "-";
-  agreementBadge.textContent = "-";
-  agreementBadge.className = "agreement-badge agreement-none";
+  resultCard.classList.remove("has-result");
+  finalText.textContent = "Running all four pipelines...";
+  finalConfidence.textContent = "--";
+  agreementBadge.textContent = "--";
+  agreementBadge.className = "badge badge-none";
 }
 
 function applyFinal(data) {
   finalText.textContent = data.final_text || "(no consensus)";
   finalConfidence.textContent = `${Math.round((data.final_confidence || 0) * 100)}% confidence`;
-  agreementBadge.textContent =
-    `Agreement: ${data.agreement} - Winner: ${data.winner === "none" ? "-" : "Pipeline " + data.winner}`;
-  agreementBadge.className = `agreement-badge agreement-${data.agreement}`;
+
+  const label =
+    `Agreement: ${data.agreement}` +
+    (data.winner && data.winner !== "none"
+      ? ` -- Winner: Pipeline ${data.winner}`
+      : "");
+  agreementBadge.textContent = label;
+  agreementBadge.className = `badge badge-${data.agreement}`;
+
+  resultCard.classList.add("has-result");
+
+  /* Highlight the winning pipeline card */
+  if (data.winner && data.winner !== "none") {
+    const winCol = document.querySelector(`#col-${data.winner.toLowerCase()}`);
+    if (winCol) winCol.classList.add("winner");
+  }
 }
 
 function handleEvent(event) {
@@ -73,11 +101,13 @@ function handleEvent(event) {
   }
 }
 
+/* ── Upload Logic ─────────────────────────────────────────────── */
 async function uploadEnsemble(file) {
   resetColumns();
   if (preview) {
     preview.src = URL.createObjectURL(file);
     preview.hidden = false;
+    if (previewPlaceholder) previewPlaceholder.hidden = true;
   }
 
   const form = new FormData();
@@ -88,7 +118,7 @@ async function uploadEnsemble(file) {
     response = await fetch("/upload_ensemble", { method: "POST", body: form });
   } catch (err) {
     console.error("Fetch failed:", err);
-    finalText.textContent = "Upload failed - network error";
+    finalText.textContent = "Upload failed -- network error";
     return;
   }
 
@@ -99,14 +129,14 @@ async function uploadEnsemble(file) {
   }
 
   if (!response.body) {
-    // Fallback: read entire response as text (for proxied environments)
+    /* Fallback: read entire response as text (for proxied environments like HF) */
     const text = await response.text();
     const lines = text.split("\n").filter((l) => l.trim());
     for (const line of lines) {
       try {
         handleEvent(JSON.parse(line));
       } catch {
-        // ignore
+        /* ignore */
       }
     }
     return;
@@ -128,37 +158,113 @@ async function uploadEnsemble(file) {
         try {
           handleEvent(JSON.parse(line));
         } catch {
-          // ignore partial / malformed lines
+          /* ignore partial / malformed lines */
         }
       }
     }
   }
 }
 
+/* ── Webcam Logic ─────────────────────────────────────────────── */
+async function openCamera() {
+  webcamOverlay.hidden = false;
+  try {
+    currentStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 960 } },
+      audio: false,
+    });
+    webcamVideo.srcObject = currentStream;
+  } catch (err) {
+    console.error("Camera access denied:", err);
+    alert("Camera access was denied. Please allow camera access and try again.");
+    closeCamera();
+  }
+}
+
+function closeCamera() {
+  if (currentStream) {
+    currentStream.getTracks().forEach((t) => t.stop());
+    currentStream = null;
+  }
+  webcamVideo.srcObject = null;
+  webcamOverlay.hidden = true;
+}
+
+function captureFrame() {
+  const video = webcamVideo;
+  const canvas = webcamCanvas;
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.drawImage(video, 0, 0);
+  canvas.toBlob(
+    (blob) => {
+      if (!blob) return;
+      const file = new File([blob], "capture.jpg", { type: "image/jpeg" });
+      closeCamera();
+      uploadEnsemble(file);
+    },
+    "image/jpeg",
+    0.92
+  );
+}
+
+/* ── Speak Aloud ──────────────────────────────────────────────── */
 speakBtn.addEventListener("click", () => {
   const text = finalText.textContent.trim();
-  if (!text || text === "Upload an image to begin" || text === "Waiting for pipelines...") return;
+  if (
+    !text ||
+    text.startsWith("Upload") ||
+    text.startsWith("Running") ||
+    text.startsWith("Waiting")
+  )
+    return;
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.rate = 0.9;
-  speakBtn.textContent = "Speaking...";
+  speakBtn.querySelector("span")
+    ? (speakBtn.innerHTML =
+        '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 5.5h2l4-3v11l-4-3H2a1 1 0 01-1-1v-3a1 1 0 011-1z" fill="currentColor"/><path d="M11 4.5a4 4 0 010 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 2.5a7 7 0 010 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Speaking...')
+    : null;
   utterance.onend = () => {
-    speakBtn.textContent = "Speak Aloud";
+    speakBtn.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 5.5h2l4-3v11l-4-3H2a1 1 0 01-1-1v-3a1 1 0 011-1z" fill="currentColor"/><path d="M11 4.5a4 4 0 010 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 2.5a7 7 0 010 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Speak Aloud';
   };
   speechSynthesis.cancel();
   speechSynthesis.speak(utterance);
 });
 
+/* ── Event Listeners ──────────────────────────────────────────── */
 imageInput.addEventListener("change", () => {
   const file = imageInput.files[0];
   if (file) uploadEnsemble(file);
 });
 
-upload.addEventListener("dragover", (event) => {
+uploadLabel.addEventListener("dragover", (event) => {
   event.preventDefault();
+  uploadLabel.style.borderColor = "var(--accent)";
 });
 
-upload.addEventListener("drop", (event) => {
+uploadLabel.addEventListener("dragleave", () => {
+  uploadLabel.style.borderColor = "";
+});
+
+uploadLabel.addEventListener("drop", (event) => {
   event.preventDefault();
+  uploadLabel.style.borderColor = "";
   const file = event.dataTransfer.files[0];
   if (file) uploadEnsemble(file);
+});
+
+cameraBtn.addEventListener("click", openCamera);
+webcamClose.addEventListener("click", closeCamera);
+captureBtn.addEventListener("click", captureFrame);
+
+/* Close webcam on Escape */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !webcamOverlay.hidden) closeCamera();
+});
+
+/* Close webcam on overlay click */
+webcamOverlay.addEventListener("click", (e) => {
+  if (e.target === webcamOverlay) closeCamera();
 });

@@ -3,98 +3,167 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>BrailleVision</title>
+    <meta name="description" content="BrailleVision - AI-powered Braille to English translation using four parallel recognition pipelines with ensemble voting.">
+    <title>BrailleVision - Braille Recognition</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   </head>
   <body>
-    <main class="app">
+    <main class="app" id="app">
+
+      <!-- Header -->
       <header class="topbar">
         <div class="brand">
-          <span class="mark">BV</span>
+          <div class="mark">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="8" cy="6" r="2.5" fill="white"/>
+              <circle cx="16" cy="6" r="2.5" fill="white" opacity="0.4"/>
+              <circle cx="8" cy="12" r="2.5" fill="white"/>
+              <circle cx="16" cy="12" r="2.5" fill="white"/>
+              <circle cx="8" cy="18" r="2.5" fill="white" opacity="0.4"/>
+              <circle cx="16" cy="18" r="2.5" fill="white"/>
+            </svg>
+          </div>
           <div>
             <h1>BrailleVision</h1>
-            <p>Four-pipeline Braille recognition ensemble</p>
+            <p class="subtitle">Four-pipeline Braille recognition ensemble</p>
           </div>
         </div>
-        <label class="upload" for="imageInput">
-          <input id="imageInput" type="file" accept="image/*">
-          <strong>Upload Braille Image</strong>
-          <span>Click or drop an image to run all four pipelines</span>
-        </label>
+        <div class="input-actions">
+          <label class="upload-btn" for="imageInput" id="uploadLabel">
+            <input id="imageInput" type="file" accept="image/*">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 14l4-5 3 4 4-6 3 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="2" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Upload Image</span>
+          </label>
+          <button class="camera-btn" id="cameraBtn" type="button">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M7 3l-1.5 2H3a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V7a2 2 0 00-2-2h-2.5L13 3H7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="11" r="3" stroke="currentColor" stroke-width="1.5"/></svg>
+            <span>Use Camera</span>
+          </button>
+        </div>
       </header>
 
-      <section class="final-result" id="finalResult">
-        <div class="final-main">
-          <div class="label">Final - ensemble vote</div>
-          <div id="finalText" class="final-text">Upload an image to begin</div>
-          <div class="final-meta">
-            <span id="agreementBadge" class="agreement-badge agreement-none">-</span>
-            <span id="finalConfidence" class="final-confidence">-</span>
+      <!-- Webcam Modal -->
+      <div class="webcam-overlay" id="webcamOverlay" hidden>
+        <div class="webcam-modal">
+          <div class="webcam-header">
+            <h2>Capture Braille Image</h2>
+            <button class="webcam-close" id="webcamClose" type="button">
+              <svg width="20" height="20" viewBox="0 0 20 20"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="webcam-body">
+            <video id="webcamVideo" autoplay playsinline></video>
+            <canvas id="webcamCanvas" hidden></canvas>
+            <div class="webcam-guide">
+              <div class="guide-frame"></div>
+              <p>Position Braille text within the frame</p>
+            </div>
+          </div>
+          <div class="webcam-footer">
+            <button class="capture-btn" id="captureBtn" type="button">
+              <span class="capture-ring"></span>
+            </button>
+            <p class="capture-hint">Tap to capture</p>
           </div>
         </div>
-        <div class="final-side">
-          <img id="preview" class="preview" alt="Uploaded Braille image" hidden>
-          <button id="speakBtn" type="button">Speak Aloud</button>
+      </div>
+
+      <!-- Result Section -->
+      <section class="result-card" id="finalResult">
+        <div class="result-content">
+          <div class="result-left">
+            <div class="result-label">Final -- Ensemble Vote</div>
+            <div id="finalText" class="result-text">Upload an image or use camera to begin</div>
+            <div class="result-meta">
+              <span id="agreementBadge" class="badge badge-none">--</span>
+              <span id="finalConfidence" class="confidence-text">--</span>
+            </div>
+          </div>
+          <div class="result-right">
+            <div class="preview-container" id="previewContainer">
+              <img id="preview" class="preview-img" alt="Uploaded Braille image" hidden>
+              <div class="preview-placeholder" id="previewPlaceholder">
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" opacity="0.3">
+                  <rect x="2" y="6" width="36" height="28" rx="4" stroke="currentColor" stroke-width="2"/>
+                  <circle cx="14" cy="16" r="3" stroke="currentColor" stroke-width="2"/>
+                  <path d="M6 30l8-10 6 8 6-12 8 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <button id="speakBtn" class="speak-btn" type="button">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 5.5h2l4-3v11l-4-3H2a1 1 0 01-1-1v-3a1 1 0 011-1z" fill="currentColor"/><path d="M11 4.5a4 4 0 010 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M13 2.5a7 7 0 010 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Speak Aloud
+            </button>
+          </div>
         </div>
       </section>
 
-      <section class="ensemble-grid">
-        <article class="pipeline-col" id="col-a">
-          <div class="pipeline-header">
-            <span class="pipeline-label">A</span>
-            <div class="pipeline-titles">
-              <span class="pipeline-method">Classical CV</span>
-              <span class="pipeline-sub">DBSCAN + lookup</span>
+      <!-- Pipeline Grid -->
+      <section class="pipeline-grid">
+        <article class="pipeline-card" id="col-a">
+          <div class="pipe-head">
+            <span class="pipe-badge pipe-a">A</span>
+            <div class="pipe-info">
+              <span class="pipe-name">Classical CV</span>
+              <span class="pipe-desc">DBSCAN + lookup</span>
             </div>
-            <span class="pipeline-latency" id="lat-a">-</span>
+            <span class="pipe-latency" id="lat-a">--</span>
           </div>
-          <div class="pipeline-text" id="text-a">Waiting...</div>
-          <div class="confidence-bar"><div class="confidence-fill" id="conf-a" style="width:0%"></div></div>
-          <div class="confidence-label" id="conf-label-a">-</div>
+          <div class="pipe-output" id="text-a">Waiting...</div>
+          <div class="pipe-bar"><div class="pipe-fill" id="conf-a"></div></div>
+          <div class="pipe-conf" id="conf-label-a">--</div>
         </article>
 
-        <article class="pipeline-col" id="col-b">
-          <div class="pipeline-header">
-            <span class="pipeline-label">B</span>
-            <div class="pipeline-titles">
-              <span class="pipeline-method">Roboflow model</span>
-              <span class="pipeline-sub">Pretrained YOLOv8</span>
+        <article class="pipeline-card" id="col-b">
+          <div class="pipe-head">
+            <span class="pipe-badge pipe-b">B</span>
+            <div class="pipe-info">
+              <span class="pipe-name">Roboflow model</span>
+              <span class="pipe-desc">Pretrained YOLOv8</span>
             </div>
-            <span class="pipeline-latency" id="lat-b">-</span>
+            <span class="pipe-latency" id="lat-b">--</span>
           </div>
-          <div class="pipeline-text" id="text-b">Waiting...</div>
-          <div class="confidence-bar"><div class="confidence-fill" id="conf-b" style="width:0%"></div></div>
-          <div class="confidence-label" id="conf-label-b">-</div>
+          <div class="pipe-output" id="text-b">Waiting...</div>
+          <div class="pipe-bar"><div class="pipe-fill" id="conf-b"></div></div>
+          <div class="pipe-conf" id="conf-label-b">--</div>
         </article>
 
-        <article class="pipeline-col" id="col-c">
-          <div class="pipeline-header">
-            <span class="pipeline-label">C</span>
-            <div class="pipeline-titles">
-              <span class="pipeline-method">GPT-4o Vision</span>
-              <span class="pipeline-sub">OpenAI API</span>
+        <article class="pipeline-card" id="col-c">
+          <div class="pipe-head">
+            <span class="pipe-badge pipe-c">C</span>
+            <div class="pipe-info">
+              <span class="pipe-name">GPT-4o Vision</span>
+              <span class="pipe-desc">OpenAI API</span>
             </div>
-            <span class="pipeline-latency" id="lat-c">-</span>
+            <span class="pipe-latency" id="lat-c">--</span>
           </div>
-          <div class="pipeline-text" id="text-c">Waiting...</div>
-          <div class="confidence-bar"><div class="confidence-fill" id="conf-c" style="width:0%"></div></div>
-          <div class="confidence-label" id="conf-label-c">-</div>
+          <div class="pipe-output" id="text-c">Waiting...</div>
+          <div class="pipe-bar"><div class="pipe-fill" id="conf-c"></div></div>
+          <div class="pipe-conf" id="conf-label-c">--</div>
         </article>
 
-        <article class="pipeline-col" id="col-d">
-          <div class="pipeline-header">
-            <span class="pipeline-label">D</span>
-            <div class="pipeline-titles">
-              <span class="pipeline-method">Our finetuned model</span>
-              <span class="pipeline-sub">YOLOv8 - ~2,100 imgs</span>
+        <article class="pipeline-card" id="col-d">
+          <div class="pipe-head">
+            <span class="pipe-badge pipe-d">D</span>
+            <div class="pipe-info">
+              <span class="pipe-name">Finetuned model</span>
+              <span class="pipe-desc">YOLOv8 -- ~2,100 imgs</span>
             </div>
-            <span class="pipeline-latency" id="lat-d">-</span>
+            <span class="pipe-latency" id="lat-d">--</span>
           </div>
-          <div class="pipeline-text" id="text-d">Waiting...</div>
-          <div class="confidence-bar"><div class="confidence-fill" id="conf-d" style="width:0%"></div></div>
-          <div class="confidence-label" id="conf-label-d">-</div>
+          <div class="pipe-output" id="text-d">Waiting...</div>
+          <div class="pipe-bar"><div class="pipe-fill" id="conf-d"></div></div>
+          <div class="pipe-conf" id="conf-label-d">--</div>
         </article>
       </section>
+
+      <!-- Footer -->
+      <footer class="app-footer">
+        <p>Built with OpenCV, YOLOv8, GPT-4o Vision, and ensemble voting</p>
+      </footer>
+
     </main>
     <script src="{{ url_for('static', filename='app.js') }}"></script>
   </body>
