@@ -60,17 +60,17 @@ def ensemble(
     """
     Weighted voting across four pipelines.
 
-    Weights reflect expected accuracy:
-      A (classical CV)     = 1.0
-      B (Roboflow model)   = 2.5
-      C (GPT-4o Vision)    = 4.0
-      D (our finetuned)    = 3.0
+    Weights reflect expected accuracy (normalized to not overpower pure 100% confidence):
+      A (classical CV)     = 1.00
+      B (Roboflow model)   = 1.02
+      C (GPT-4o Vision)    = 1.05
+      D (our finetuned)    = 1.03
 
     Agreement bonus: pairwise agreement boosts combined weight by 1.3x.
     """
     texts = [a_text, b_text, c_text, d_text]
     confs = [a_conf, b_conf, c_conf, d_conf]
-    weights = [1.0, 2.5, 4.0, 3.0]
+    weights = [1.00, 1.02, 1.05, 1.03]
     labels = ["A", "B", "C", "D"]
     THRESHOLD = 0.85
 

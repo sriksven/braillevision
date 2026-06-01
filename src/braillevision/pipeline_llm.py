@@ -10,13 +10,15 @@ import numpy as np
 from openai import OpenAI
 
 SYSTEM_PROMPT = (
-    "You are an expert at reading Braille. Given an image of Braille text, "
-    "extract and output ONLY the English text that the Braille represents. "
-    "Do not add explanations or formatting. If the image contains no readable "
-    'Braille, respond with exactly "UNCLEAR".'
+    "You are an expert at reading Standard English Braille. "
+    "The user will provide an image showing Braille dots. "
+    "Your ONLY task is to read the Braille characters and output the exact English text they represent. "
+    "Do not guess random words or describe the image. If the dots are clearly 'h-e-l-l-o', output 'hello'. "
+    "Output ONLY the final English text. Do not add any punctuation, explanations, or formatting. "
+    "If the image contains no readable Braille, respond with exactly 'UNCLEAR'."
 )
 
-USER_PROMPT = "Read the Braille in this image and output only the English text."
+USER_PROMPT = "Read the Braille dots in this image and output only the English text."
 
 
 @dataclass
