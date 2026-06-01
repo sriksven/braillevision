@@ -46,12 +46,16 @@ def test_llm_unclear_response():
 def test_llm_valid_response():
     """Test that valid response is processed correctly."""
     frame = np.ones((100, 100, 3), dtype=np.uint8)
+    import math
     mock_resp = MagicMock()
     mock_resp.choices[0].message.content = "hello world"
+    mock_token = MagicMock()
+    mock_token.logprob = math.log(0.85)
+    mock_resp.choices[0].logprobs.content = [mock_token]
     with patch("braillevision.pipeline_llm.OpenAI") as mock_client_class:
         mock_client_class.return_value.chat.completions.create.return_value = mock_resp
         result = run_llm_pipeline(frame, api_key="test-key")
     assert result.text == "hello world"
-    assert result.confidence == 0.92
+    assert abs(result.confidence - 0.85) < 1e-5
     assert result.latency_ms >= 0  # May be 0 due to mock speed
     assert result.model == "gpt-4o"

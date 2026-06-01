@@ -1,6 +1,7 @@
 """Pipeline C: GPT-4o Vision API for Braille recognition."""
 
 import base64
+import math
 import os
 import time
 from dataclasses import dataclass
@@ -84,6 +85,8 @@ def run_llm_pipeline(frame: np.ndarray, api_key: str | None = None) -> LLMResult
             frequency_penalty=0,
             presence_penalty=0,
             max_tokens=100,
+            logprobs=True,
+            top_logprobs=1,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {
@@ -102,14 +105,19 @@ def run_llm_pipeline(frame: np.ndarray, api_key: str | None = None) -> LLMResult
             ],
         )
         latency_ms = int((time.time() - start) * 1000)
-        raw = response.choices[0].message.content.strip()
+        choice = response.choices[0]
+        raw = choice.message.content.strip()
 
         if raw in ("UNCLEAR", "NO_BRAILLE"):
             return LLMResult(
                 text="", confidence=0.1, latency_ms=latency_ms, model="gpt-4o"
             )
 
-        confidence = 0.92 if len(raw) > 2 else 0.5
+        confidence = 0.5
+        if hasattr(choice, "logprobs") and choice.logprobs and choice.logprobs.content:
+            probs = [math.exp(token.logprob) for token in choice.logprobs.content]
+            if probs:
+                confidence = sum(probs) / len(probs)
         return LLMResult(
             text=raw.lower(),
             confidence=confidence,
