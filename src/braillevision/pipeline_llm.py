@@ -36,7 +36,9 @@ dots 1-2-5, dots 1-5, dots 1-2-3, dots 1-2-3, dots 1-3-5
 Output:
 hello"""
 
-USER_PROMPT = "Translate the Braille in this image into English. Return only the English text."
+USER_PROMPT = (
+    "Translate the Braille in this image into English. Return only the English text."
+)
 
 
 @dataclass
