@@ -84,12 +84,28 @@ To auto-format:
 
 ## Android Hybrid App
 
-A native Android wrapper is included in the `android APP` directory, built using Capacitor. It wraps the mobile-responsive Web UI and streams directly from the backend, including native camera permissions for scanning.
+A native Android wrapper is included in the `android APP` directory, built with Capacitor. It loads the mobile-responsive BrailleVision web UI in an Android WebView and currently points at the public Hugging Face backend:
+
+```text
+https://sriksven-braillevision.hf.space
+```
+
+Android package details:
+
+- App id: `com.sriksven.braillevision`
+- App name: `BrailleVision`
+- Min SDK: 23
+- Target SDK: 35
+- Permissions: internet, camera, and audio recording
 
 To build the APK:
-1. Ensure Android Studio is installed.
-2. Open the `android APP/android` folder in Android Studio.
-3. Build and run on an emulator or physical device.
+1. Install Node.js, npm, Android Studio, and a configured Android SDK.
+2. Run `npm install` from `android APP/`.
+3. Run `npx cap sync android`.
+4. Open `android APP/android` in Android Studio.
+5. Build and run on an emulator or physical device.
+
+See [docs/android.md](docs/android.md) for local backend configuration, debug APK commands, release notes, and troubleshooting.
 
 ## Docker
 
@@ -143,6 +159,7 @@ data/raw/                   Local raw real images, ignored by git
 data/processed/             Generated variants, ignored by git
 data/annotations/           Local annotation JSON, ignored by git
 docs/                       Architecture, API, and next-step notes
+docs/android.md             Android Capacitor wrapper setup and build notes
 .github/workflows/ci.yml    GitHub Actions test and lint workflow
 ```
 
