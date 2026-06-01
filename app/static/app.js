@@ -21,6 +21,28 @@ const captureBtn = document.querySelector("#captureBtn");
 const PIPELINES = ["a", "b", "c", "d"];
 let currentStream = null;
 
+/* ── Theme Toggle ─────────────────────────────────────────────── */
+const themeToggle = document.querySelector("#themeToggle");
+
+function applyTheme(theme) {
+  if (theme === "dark") {
+    document.documentElement.setAttribute("data-theme", "dark");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+}
+
+/* Load saved preference or default to light */
+const savedTheme = localStorage.getItem("bv-theme") || "light";
+applyTheme(savedTheme);
+
+themeToggle.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+  localStorage.setItem("bv-theme", next);
+});
+
 /* ── Pipeline Column Rendering ────────────────────────────────── */
 function setColumn(p, data) {
   const textEl = document.querySelector(`#text-${p}`);
