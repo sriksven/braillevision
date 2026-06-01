@@ -102,12 +102,14 @@ def run_finetuned_pipeline(frame: np.ndarray) -> FinetunedResult:
 
         # Sort predictions left-to-right by x coordinate
         detections.sort(key=lambda d: d["x"])
-        
+
         characters = [d["class"].lower() for d in detections]
         text = "".join(characters)
 
         latency_ms = int((time.time() - start) * 1000)
-        confidence = sum(d["conf"] for d in detections) / len(detections) if detections else 0.1
+        confidence = (
+            sum(d["conf"] for d in detections) / len(detections) if detections else 0.1
+        )
 
         return FinetunedResult(
             text=text,

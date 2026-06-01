@@ -15,8 +15,6 @@ except ImportError:
     REQUESTS_AVAILABLE = False
 import os
 
-
-
 ROBOFLOW_API_KEY = os.getenv("ROBOFLOW_API_KEY", "")
 ROBOFLOW_MODEL = "braille-detection-v2-xpwue"
 ROBOFLOW_VERSION = 1
@@ -75,7 +73,7 @@ def run_roboflow_pipeline(frame: np.ndarray) -> RoboflowResult:
         # YOLO predicts full characters, not individual dots.
         # Sort predictions left-to-right by x coordinate
         predictions.sort(key=lambda p: p["x"])
-        
+
         # Extract class labels and concatenate
         characters = [p.get("class", "").lower() for p in predictions]
         text = "".join(characters)
